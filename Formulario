@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulario de Operativo Policial</title>
+  <style>
+    :root {
+      --primary-color: #2a5298;
+      --primary-dark: #1e3c72;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --warning-color: #ffc107;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --border-radius: 10px;
+      --box-shadow: 0 10px 30px rgba(0,0,0,.1);
+      --transition: all 0.3s ease;
+    }
+    
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6; 
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh; 
+      padding: 20px;
+    }
+    
+    .container { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      background: #fff; 
+      border-radius: var(--border-radius); 
+      box-shadow: var(--box-shadow); 
+      overflow: hidden; 
+    }
+    
+    .header { 
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%); 
+      color: #fff; 
+      padding: 30px; 
+      text-align: center; 
+    }
+    
+    .header h1 { 
+      font-size: 2.2rem; 
+      margin-bottom: 10px; 
+    }
+    
+    .header p { 
+      font-size: 1.05rem; 
+      opacity: .9; 
+    }
+    
+    .form-container { 
+      padding: 24px 28px 36px; 
+    }
+    
+    .section { 
+      margin-bottom: 28px; 
+      background: var(--light-color); 
+      border-radius: var(--border-radius); 
+      padding: 22px; 
+      border-left: 5px solid var(--primary-color); 
+    }
+    
+    .section-title { 
+      font-size: 1.25rem; 
+      color: var(--primary-color); 
+      margin-bottom: 18px; 
+      border-bottom: 2px solid #e9ecef; 
+      padding-bottom: 8px; 
+      display: flex;
+      align-items: center;
+    }
+    
+    .form-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+      gap: 14px; 
+      margin-bottom: 10px; 
+    }
+    
+    .form-group { 
+      display: flex; 
+      flex-direction: column; 
+      position: relative;
+    }
+    
+    .form-group-full {
+      grid-column: 1 / -1;
+    }
+    
+    label { 
+      font-weight: 600; 
+      margin-bottom: 6px; 
+      color: #495057; 
+    }
+    
+    .required::after {
+      content: " *";
+      color: var(--danger-color);
+    }
+    
+    input, select, textarea { 
+      padding: 12px; 
+      border: 2px solid #e9ecef; 
+      border-radius: 8px; 
+      font-size: 1rem; 
+      background: #fff; 
+    }
+    
+    input:focus, select:focus, textarea:focus { 
+      outline: none; 
+      border-color: var(--primary-color); 
+      box-shadow: 0 0 0 3px rgba(42,82,152,.1); 
+    }
+    
+    .readonly { 
+      background:#f1f3f5;
+      cursor: not-allowed;
+    }
+    
+    .btn-container { 
+      display:flex; 
+      flex-wrap:wrap; 
+      gap:10px; 
+      align-items:center; 
+      justify-content:center; 
+      margin-top: 18px; 
+      padding-top: 14px; 
+      border-top: 2px solid #e9ecef; 
+    }
+    
+    .btn { 
+      cursor:pointer; 
+      border:none; 
+      border-radius: 999px; 
+      padding: 12px 22px; 
+      font-weight:600; 
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+    
+    .btn-submit { 
+      background: var(--success-color); 
+      color: #fff; 
+    }
+    
+    .btn-submit:hover {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+    
+    .btn-secondary { 
+      background:#e9ecef; 
+      color:#212529;
+    }
+    
+    .btn-secondary:hover {
+      background: #dae0e5;
+      transform: translateY(-2px);
+    }
+    
+    .btn-warning { 
+      background: var(--warning-color); 
+      color: #212529;
+    }
+    
+    .btn-warning:hover {
+      background: #e0a800;
+      transform: translateY(-2px);
+    }
+    
+    .data-status {
+      font-size: 0.85rem;
+      margin-top: 5px;
+      font-style: italic;
+    }
+    
+    .data-status.loading {
+      color: var(--warning-color);
+    }
+    
+    .data-status.success {
+      color: var(--success-color);
+    }
+    
+    .data-status.error {
+      color: var(--danger-color);
+    }
+    
+    small.hint { 
+      color:#6c757d; 
+      margin-top:4px; 
+      font-size: 0.85rem;
+    }
+    
+    .autocomplete-container {
+      position: relative;
+    }
+    
+    .autocomplete-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 0 0 8px 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: none;
+    }
+    
+    .autocomplete-suggestion {
+      padding: 10px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #f1f3f5;
+    }
+    
+    .autocomplete-suggestion:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .autocomplete-suggestion:last-child {
+      border-bottom: none;
+    }
+    
+    .autocomplete-active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .field-error {
+      color: var(--danger-color);
+      font-size: 0.85rem;
+      margin-top: 5px;
+      display: none;
+    }
+    
+    .validation-icon {
+      position: absolute;
+      right: 12px;
+      top: 38px;
+      display: none;
+    }
+    
+    .valid .validation-icon.check {
+      display: block;
+      color: var(--success-color);
+    }
+    
+    .invalid .validation-icon.times {
+      display: block;
+      color: var(--danger-color);
+    }
+    
+    .cedula-loading {
+      position: absolute;
+      right: 35px;
+      top: 38px;
+      display: none;
+    }
+    
+    .cedula-loading.active {
+      display: block;
+      animation: spin 1s linear infinite;
+    }
+    
+    .auto-filled {
+      background-color: #e8f5e8 !important;
+      border-color: var(--success-color) !important;
+    }
+    
+    .location-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .location-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.85rem;
+    }
+    
+    .location-success {
+      color: var(--success-color);
+    }
+    
+    .location-error {
+      color: var(--danger-color);
+    }
+    
+    .location-warning {
+      color: var(--warning-color);
+    }
+    
+    .location-loading {
+      color: var(--warning-color);
+      animation: pulse 1.5s infinite;
+    }
+    
+    .permission-help {
+      background-color: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 0.85rem;
+    }
+    
+    .permission-help h4 {
+      margin-bottom: 8px;
+      color: #856404;
+    }
+    
+    .permission-help ul {
+      padding-left: 20px;
+    }
+    
+    .permission-help li {
+      margin-bottom: 5px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    @media (max-width: 768px) {
+      .form-grid { 
+        grid-template-columns: 1fr; 
+      }
+      .header h1 { 
+        font-size: 1.8rem; 
+      }
+      .form-container { 
+        padding: 16px; 
+      }
+      .section { 
+        padding: 16px; 
+      }
+      .location-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📋 Formulario de Operativo Policial</h1>
+      <p>Sistema de Registro de Intervenciones Policiales</p>
+    </div>
+
+    <div class="form-container">
+      <form id="operativeForm">
+        <!-- Información General del Operativo -->
+        <div class="section">
+          <h2 class="section-title">📅 Información General del Operativo</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="fechaOperativo" class="required">Fecha del Operativo:</label>
+              <input type="date" id="fechaOperativo" name="fechaOperativo" required />
+            </div>
+            <div class="form-group">
+              <label for="horaOperativo" class="required">Hora del Operativo:</label>
+              <input type="time" id="horaOperativo" name="horaOperativo" required />
+            </div>
+            <div class="form-group">
+              <label for="direccionInterventora" class="required">Dirección Interventora:</label>
+              <select id="direccionInterventora" name="direccionInterventora" required>
+                <option value="">Seleccione una dirección...</option>
+                <option value="DNPJ">DNPJ</option>
+                <option value="DNA">DNA</option>
+                <option value="DINASED">DINASED</option>
+                <option value="DINIC">DINIC</option>
+                <option value="DINAF">DINAF</option>
+                <option value="DINITEC">DINITEC</option>
+                <option value="DNCTSV">DNCTSV</option>
+                <option value="DNPOLCO">DNPOLCO</option>
+                <option value="UNIDADES TRANSVERSALES">UNIDADES TRANSVERSALES</option>
+                <option value="DGI">DGI</option>
+                <option value="OTRO SERVICIO">OTRO SERVICIO</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="unidadInterventora" class="required">Unidad Interventora:</label>
+              <select id="unidadInterventora" name="unidadInterventora" required disabled>
+                <option value="">Primero seleccione una dirección...</option>
+              </select>
+              <div class="data-status" id="unidadesStatus"></div>
+            </div>
+            <div class="form-group autocomplete-container">
+              <label for="codigoSubcircuito">Código de Subcircuito:</label>
+              <input type="text" id="codigoSubcircuito" name="codigoSubcircuito" 
+                     placeholder="Ej: 13D08C05S01" autocomplete="off" />
+              <div class="autocomplete-suggestions" id="suggestionsContainer"></div>
+              <small class="hint">Escriba el código y seleccione de las sugerencias. Se autocompletará Zona, Subzona, etc.</small>
+              <div class="data-status" id="dataStatus"></div>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="zona">Zona:</label>
+              <input class="readonly" type="text" id="zona" name="zona" readonly />
+            </div>
+            <div class="form-group">
+              <label for="subzona">Subzona:</label>
+              <input class="readonly" type="text" id="subzona" name="subzona" readonly />
+            </div>
+            <div class="form-group">
+              <label for="distrito">Distrito:</label>
+              <input class="readonly" type="text" id="distrito" name="distrito" readonly />
+            </div>
+            <div class="form-group">
+              <label for="circuito">Circuito:</label>
+              <input class="readonly" type="text" id="circuito" name="circuito" readonly />
+            </div>
+            <div class="form-group">
+              <label for="subcircuito">Subcircuito:</label>
+              <input class="readonly" type="text" id="subcircuito" name="subcircuito" readonly />
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="latitud" class="required">Latitud:</label>
+              <div class="location-container">
+                <input type="text" id="latitud" name="latitud" 
+                       placeholder="Ej: -0,229850" 
+                       pattern="^-?\d{1,2},\d+$"
+                       required />
+                <button type="button" id="btnObtenerUbicacion" class="btn btn-secondary">📍 Obtener Ubicación</button>
+              </div>
+              <div class="field-error" id="latitudError">La latitud debe usar coma como separador decimal (Ej: -0,229850)</div>
+              <div class="location-status" id="locationStatus"></div>
+              <div class="permission-help" id="permissionHelp" style="display: none;">
+                <h4>Permiso de ubicación denegado</h4>
+                <p>Para obtener la ubicación automáticamente:</p>
+                <ul>
+                  <li>Haga clic en el icono de candado en la barra de direcciones</li>
+                  <li>Permita el acceso a la ubicación</li>
+                  <li>O intente nuevamente haciendo clic en "Obtener Ubicación"</li>
+                </ul>
+                <p>Alternativamente, puede ingresar manualmente las coordenadas usando coma como separador decimal.</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="longitud" class="required">Longitud:</label>
+              <input type="text" id="longitud" name="longitud" 
+                     placeholder="Ej: -78,524950" 
+                     pattern="^-?\d{1,3},\d+$"
+                     required />
+              <div class="field-error" id="longitudError">La longitud debe usar coma como separador decimal (Ej: -78,524950)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Presunto Delito Intervenido -->
+        <div class="section">
+          <h2 class="section-title">⚖️ Presunto Delito Intervenido</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="presuntoDelito" class="required">Presunto Delito:</label>
+              <select id="presuntoDelito" name="presuntoDelito" required>
+                <option value="">Seleccione un delito...</option>
+                <!-- Los delitos se cargarán dinámicamente -->
+              </select>
+              <div class="field-error" id="delitoError">Seleccione un presunto delito</div>
+            </div>
+            
+            <div class="form-group">
+              <label for="numeroVictimas">Número de Víctimas:</label>
+              <input type="number" id="numeroVictimas" name="numeroVictimas" 
+                     min="0" max="50" 
+                     placeholder="0" />
+            </div>
+            
+            <div class="form-group">
+              <label for="numeroDetenidos">Número de Detenidos:</label>
+              <input type="number" id="numeroDetenidos" name="numeroDetenidos" 
+                     min="0" max="50" 
+                     placeholder="0" />
+            </div>
+            
+            <div class="form-group">
+              <label for="armasIntervenidas">Armas Intervenidas:</label>
+              <select id="armasIntervenidas" name="armasIntervenidas">
+                <option value="">Seleccione...</option>
+                <option value="NINGUNA">NINGUNA</option>
+                <option value="ARMA_FUEGO">ARMA DE FUEGO</option>
+                <option value="ARMA_BLANCA">ARMA BLANCA</option>
+                <option value="ARMA_CONTUNDENTE">ARMA CONTUNDENTE</option>
+                <option value="MULTIPLES">MÚLTIPLES TIPOS</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="drogasIntervenidas">Drogas Intervenidas:</label>
+              <select id="drogasIntervenidas" name="drogasIntervenidas">
+                <option value="">Seleccione...</option>
+                <option value="NINGUNA">NINGUNA</option>
+                <option value="MARIHUANA">MARIHUANA</option>
+                <option value="COCAINA">COCAÍNA</option>
+                <option value="HEROINA">HEROÍNA</option>
+                <option value="DROGAS_SINTETICAS">DROGAS SINTÉTICAS</option>
+                <option value="MULTIPLES">MÚLTIPLES TIPOS</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del Responsable -->
+        <div class="section">
+          <h2 class="section-title">👮 Responsable del Reporte</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="numeroCedula" class="required">Número de Cédula:</label>
+              <input type="text" id="numeroCedula" name="numeroCedula" 
+                     placeholder="Ej: 0401400783" 
+                     pattern="[0-9]{10}" 
+                     maxlength="10" 
+                     required />
+              <span class="cedula-loading">🔄</span>
+              <span class="validation-icon check">✓</span>
+              <span class="validation-icon times">✗</span>
+              <div class="field-error" id="cedulaError">La cédula debe tener 10 dígitos numéricos</div>
+              <small class="hint">Ingrese su número de cédula (10 dígitos). Los datos se cargarán automáticamente.</small>
+              <div class="data-status" id="cedulaStatus"></div>
+            </div>
+            <div class="form-group">
+              <label for="grado" class="required">Grado:</label>
+              <input type="text" id="grado" name="grado" 
+                     class="readonly" 
+                     readonly 
+                     placeholder="Se cargará automáticamente..." />
+              <span class="validation-icon check">✓</span>
+              <span class="validation-icon times">✗</span>
+              <div class="field-error" id="gradoError">El grado se cargará automáticamente al ingresar la cédula</div>
+            </div>
+            <div class="form-group">
+              <label for="apellidosNombres" class="required">Apellidos y Nombres:</label>
+              <input type="text" id="apellidosNombres" name="apellidosNombres" 
+                     class="readonly"
+                     readonly
+                     placeholder="Se cargará automáticamente..." 
+                     style="text-transform: uppercase" />
+              <span class="validation-icon check">✓</span>
+              <span class="validation-icon times">✗</span>
+              <div class="field-error" id="nombresError">Los nombres se cargarán automáticamente al ingresar la cédula</div>
+            </div>
+            <div class="form-group">
+              <label for="celular" class="required">Celular:</label>
+              <input type="tel" id="celular" name="celular" 
+                     placeholder="Ej: 0991234567" 
+                     pattern="[0-9]{10}" 
+                     maxlength="10" 
+                     required />
+              <span class="validation-icon check">✓</span>
+              <span class="validation-icon times">✗</span>
+              <div class="field-error" id="celularError">El celular debe tener 10 dígitos</div>
+              <small class="hint">Ingrese su número celular (10 dígitos)</small>
+            </div>
+            <div class="form-group">
+              <label for="correoElectronico" class="required">Correo Electrónico:</label>
+              <input type="email" id="correoElectronico" name="correoElectronico" 
+                     placeholder="Ej: usuario@police.gob.ec" 
+                     required />
+              <span class="validation-icon check">✓</span>
+              <span class="validation-icon times">✗</span>
+              <div class="field-error" id="correoError">Ingrese un correo electrónico válido</div>
+              <small class="hint">Ingrese su correo institucional</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-container">
+          <button type="submit" class="btn btn-submit">📤 Enviar Formulario</button>
+          <button type="button" class="btn btn-secondary" id="btnLimpiar">🧹 Limpiar</button>
+          <button type="button" class="btn btn-secondary" id="btnGuardar">💾 Guardar Borrador</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ========== CONFIGURACIÓN ==========
+    const APPS_SCRIPT_URL_SUBCIRCUITO = 'https://script.google.com/macros/s/AKfycbxfR5YjNgpn9m6VDvoCFUoX3YnPAjbYQbiJoYVQvByWrUDVFE-mv_x7-eFa7DyH6KmBRw/exec';
+    const APPS_SCRIPT_URL_CEDULA = 'https://script.google.com/macros/s/AKfycbz4PUHwckrhhP9dcyy2f-2eAOZgGxmOtWpznTg1n0LBsuJGJRDwF3ueseZJ9UhuddLvqg/exec';
+
+    // ========== LISTA COMPLETA DE DELITOS ==========
+    const listaDelitos = [
+      "ABANDONO DE PERSONA",
+      "ABIGEATO",
+      "ABOLICION Y SUSPENSION DE DERECHOS DE PERSONA PROTEGIDA",
+      "ABORTO CON MUERTE",
+      "ABORTO CONSENTIDO",
+      "ABORTO NO CONSENTIDO",
+      "ABORTO NO PUNIBLE",
+      "ABSTENCION DE LA EJECUCION DE OPERACIONES EN CONMOCION INTERNA",
+      "ABUSO DE ARMA DE FUEGO",
+      "ABUSO DE CONFIANZA",
+      "ABUSO DE EMBLEMAS",
+      "ABUSO DE FACULTADES",
+      "ABUSO SEXUAL",
+      "ACCESO NO CONSENTIDO A UN SISTEMA INFORMATICO, TELEMATICO O DE TELECOMUNICACIONES",
+      "ACCIONES DE MALA FE PARA INVOLUCRAR EN DELITOS",
+      "ACOSO SEXUAL",
+      "ACTIVIDAD ILICITA DE RECURSOS MINEROS",
+      "ACTO ADMINISTRATIVO",
+      "ACTOS DE ODIO",
+      "ACTOS HOSTILES CONTRA EL ESTADO",
+      "ACTOS ILEGALES TENDIENTES AL ALZA DE PRECIOS DE PRODUCTOS SUJETOS A PRECIO OFICIAL",
+      "ACUSACION O DENUNCIA MALICIOSA",
+      "ADOPCION ILEGAL",
+      "ADULTERACION DE LA CALIDAD O CANTIDAD DE PRODUCTOS DERIVADOS DE HIDROCARBUROS, GAS LICUADO DE PETROLEO O BIOCOMBUSTIBLES",
+      "AGIOTAJE",
+      "AGRAVANTES EN INFRACCIONES DE TRANSITO",
+      "AGRESION",
+      "ALMACENAMIENTO, TRANSPORTE, ENVASADO, COMERCIALIZACION O DISTRIBUCION ILEGAL DE HIDROCARBUROS EN LAS PROVINCIAS FRONTERIZAS, PUERTOS MARITIMOS O FLUVIALES O MAR TERRITORIAL",
+      "ALMACENAMIENTO, TRANSPORTE, ENVASADO, COMERCIALIZACION O DISTRIBUCION ILEGAL O MAL USO DE PRODUCTOS DERIVADOS DE HIDROCARBUROS, GAS LICUADO DE PETROLEO O BIOCOMBUSTIBLES",
+      "ALTERACION DE EVIDENCIAS Y ELEMENTOS DE PRUEBA",
+      "APARTHEID",
+      "APLICACION DE DISPOSICIONES EN CONFLICTO ARMADO INTERNACIONAL O NO INTERNACIONAL",
+      "APOLOGIA",
+      "APROPIACION FRAUDULENTA POR MEDIOS ELECTRONICOS",
+      "APROVECHAMIENTO ILICITO DE SERVICIOS PUBLICOS",
+      "ARMAS DE FUEGO, MUNICIONES Y EXPLOSIVOS NO AUTORIZADOS",
+      "ARMAS PROHIBIDAS POR EL DERECHO INTERNACIONAL HUMANITARIO",
+      "ASESINATO",
+      "ASOCIACION ILICITA",
+      "ATAQUE A BIENES PROTEGIDOS",
+      "ATAQUE A LA INTEGRIDAD DE SISTEMAS INFORMATICOS",
+      "ATAQUE A PERSONA PROTEGIDA CON FINES TERRORISTAS",
+      "ATAQUE O RESISTENCIA",
+      "ATENTADO A LA INTEGRIDAD SEXUAL Y REPRODUCTIVA DE PERSONA PROTEGIDA",
+      "ATENTADO CONTRA LA SEGURIDAD DE LAS OPERACIONES MILITARES O POLICIALES",
+      "AUTORIZACION INDEBIDA DE CONTRATO OF SEGURO",
+      "BIENES PROTEGIDOS POR EL DERECHO INTERNACIONAL HUMANITARIO",
+      "BOLETA DE APREMIO",
+      "BOLETA DE AUXILIO",
+      "BOLETA DE DETENCION",
+      "BOLETA DE ENCARCELAMIENTO",
+      "CALUMNIA",
+      "CANTIDAD ADMISIBLE PARA USO O CONSUMO PERSONAL",
+      "CAPTACION ILEGAL DE DINERO",
+      "CASINOS, SALAS DE JUEGO, CASAS DE APUESTAS O NEGOCIOS DEDICADOS A LA REALIZACION DE JUEGOS DE AZAR",
+      "CASTIGOS COLECTIVOS EN PERSONA PROTEGIDA",
+      "COHECHO",
+      "COMERCIALIZACION DE BIENES DE USO POLICIAL O MILITAR HURTADOS O ROBADOS",
+      "COMERCIALIZACION DE PORNOGRAFIA CON UTILIZACION DE NINAS, NINOS O ADOLESCENTES",
+      "COMERCIALIZACION ILICITA DE TERMINALES MOVILES",
+      "COMERCIALIZACION, DISTRIBUCION, IMPORTACION, ALMACENAMIENTO Y DISPENSACION DE MEDICAMENTOS, DISPOSITIVOS MEDICOS Y PRODUCTOS DE USO Y CONSUMO HUMANO CADUCADOS",
+      "CONCUSION",
+      "CONDUCCION DE VEHICULO BAJO EFECTO DE SUSTANCIAS ESTUPEFACIENTES, PSICOTROPICAS O PREPARADOS QUE LAS CONTENGAN",
+      "CONDUCCION DE VEHICULO CON LLANTAS EN MAL ESTADO",
+      "CONDUCCION DE VEHICULO EN ESTADO DE EMBRIAGUEZ",
+      "CONTACTO CON FINALIDAD SEXUAL CON MENORES DE DIECIOCHO ANOS POR MEDIOS ELECTRONICOS",
+      "CONTAMINACION DE SUSTANCIAS DESTINADAS AL CONSUMO HUMANO",
+      "CONTAMINACION DEL AIRE",
+      "CONTRABANDO",
+      "CONTRAVENCION",
+      "CONTRAVENCION DE ABIGEATO",
+      "CONTRAVENCION DE HURTO",
+      "CONTRAVENCION DE VIOLENCIA CONTRA LA MUJER O MIEMBROS DEL NUCLEO FAMILIAR",
+      "CONTRAVENCIONES DE CUARTA CLASE",
+      "CONTRAVENCIONES DE PRIMERA CLASE",
+      "CONTRAVENCIONES DE SEGUNDA CLASE",
+      "CONTRAVENCIONES DE TERCERA CLASE",
+      "CONTRAVENCIONES DE TRANSITO",
+      "CONTRAVENCIONES DE TRANSITO DE CUARTA CLASE",
+      "CONTRAVENCIONES DE TRANSITO DE PRIMERA CLASE",
+      "CONTRAVENCIONES DE TRANSITO DE QUINTA CLASE",
+      "CONTRAVENCIONES DE TRANSITO DE SEGUNDA CLASE",
+      "CONTRAVENCIONES DE TRANSITO DE SEPTIMA CLASE",
+      "CONTRAVENCIONES DE TRANSITO DE SEXTA CLASE",
+      "CONTRAVENCIONES EN ESCENARIOS DEPORTIVOS Y DE CONCURRENCIA MASIVA",
+      "CONTRIBUCIONES ARBITRARIAS",
+      "CORRUPCION DE NINAS, NINOS Y ADOLESCENTES",
+      "DANO A BIEN AJENO",
+      "DANO PERMANENTE A LA SALUD",
+      "DANOS MATERIALES",
+      "DANOS MECANICOS PREVISIBLES EN TRANSPORTE PUBLICO",
+      "DEFRAUDACION ADUANERA",
+      "DEFRAUDACION TRIBUTARIA",
+      "DEFRAUDACIONES BURSATILES",
+      "DELINCUENCIA ORGANIZADA",
+      "DELITOS CONTRA EL AGUA",
+      "DELITOS CONTRA LA FLORA Y FAUNA SILVESTRES",
+      "DELITOS CONTRA LA INFORMACION PUBLICA RESERVADA LEGALMENTE",
+      "DELITOS CONTRA LOS BIENES INSTITUCIONALES DE FUERZAS ARMADAS O POLICIA NACIONAL",
+      "DELITOS CONTRA LOS RECURSOS DEL PATRIMONIO GENETICO NACIONAL",
+      "DELITOS CONTRA SUELO",
+      "DELITOS DE LESA HUMANIDAD",
+      "DELITOS DE TRANSITO",
+      "DENEGACION DE GARANTIAS JUDICIALES DE PERSONA PROTEGIDA",
+      "DEPORTACION O TRASLADO FORZOSO DE POBLACION",
+      "DESAPARICION FORZADA",
+      "DESAPARICION INVOLUNTARIA",
+      "DESAPARICION INVOLUNTARIA DE PERSONAS",
+      "DESATENCION DEL SERVICIO DE SALUD",
+      "DESCUENTO INDEBIDO DE VALORES",
+      "DESERCION",
+      "DESTRUCCION DE BIENES DEL PATRIMONIO CULTURAL",
+      "DESTRUCCION DE OBJETOS MATERIALES",
+      "DESTRUCCION DE REGISTROS",
+      "DESTRUCCION O APROPIACION DE BIENES DE LA PARTE ADVERSA",
+      "DESTRUCCION O INUTILIZACION DE BIENES",
+      "DIFUSION DE INFORMACION DE CIRCULACION RESTRINGIDA",
+      "DISCRIMINACION",
+      "DISTRIBUCION DE MATERIAL PORNOGRAFICO A NINAS, NINOS Y ADOLESCENTES",
+      "DIVULGACION DE INFORMACION FINANCIERA RESERVADA",
+      "EJECUCION EXTRAJUDICIAL",
+      "EJERCICIO ILEGAL DE LA PROFESION",
+      "ELUSION DE RESPONSABILIDADES DE LAS O LOS SERVIDORES DE LAS FUERZAS ARMADAS O POLICIA NACIONAL",
+      "EMPLEO DE METODOS PROHIBIDOS EN LA CONDUCCION DE CONFLICTO ARMADO",
+      "EMPLEO DE PERSONAS PARA MENDICIDAD",
+      "ENGANO AL COMPRADOR RESPECTO A LA IDENTIDAD O CALIDAD DE LAS COSAS O SERVICIOS VENDIDOS",
+      "ENRIQUECIMIENTO ILICITO",
+      "ENRIQUECIMIENTO PRIVADO NO JUSTIFICADO",
+      "ESCLAVITUD",
+      "ESPIONAJE",
+      "ESTAFA",
+      "ESTUPRO",
+      "ETNOCIDIO",
+      "EVASION",
+      "EXCESO DE PASAJEROS EN TRANSPORTE PUBLICO",
+      "EXPLOTACION SEXUAL DE PERSONAS",
+      "EXTERMINIO",
+      "EXTORSION",
+      "EXTRACCION Y TRATAMIENTO ILEGAL OF ORGANOS Y TEJIDOS",
+      "EXTRALIMITACION EN LA EJECUCION DE UN ACTO DE SERVICIO",
+      "FALSA INCRIMINACION",
+      "FALSEDAD DE INFORMACION",
+      "FALSEDAD DE INFORMACION FINANCIERA",
+      "FALSEDAD DOCUMENTAL EN EL MERCADO DE VALORES",
+      "FALSEDAD U OCULTAMIENTO DE INFORMACION AMBIENTAL",
+      "FALSIFICACION DE FIRMAS",
+      "FALSIFICACION DE MARCAS Y PIRATERIA LESIVA CONTRA LOS DERECHOS DE AUTOR",
+      "FALSIFICACION DE MONEDA Y OTROS DOCUMENTOS",
+      "FALSIFICACION O ADULTERACION DE BIENES DEL PATRIMONIO CULTURAL",
+      "FALSIFICACION Y USO DE DOCUMENTO FALSO",
+      "FALSIFICACION, FORJAMIENTO O ALTERACION DE RECETAS",
+      "FALSO SUFRAGIO",
+      "FALTA DE AFILIACION AL INSTITUTO ECUATORIANO DE SEGURIDAD SOCIAL",
+      "FALTA DE AFILIACION AL INSTITUTO ECUATORIANO DE SEGURIDAD SOCIAL POR PARTE DE UNA PERSONA JURIDICA",
+      "FEMICIDIO",
+      "FINANCIACION DEL TERRORISMO",
+      "FINANCIAMIENTO O SUMINISTRO DE MAQUINARIAS PARA EXTRACCION ILICITA DE RECURSOS MINEROS",
+      "FRAUDE ELECTORAL",
+      "FRAUDE PROCESAL",
+      "GENOCIDIO",
+      "GESTION PROHIBIDA O NO AUTORIZADA DE PRODUCTOS, RESIDUOS, DESECHOS O SUSTANCIAS PELIGROSAS",
+      "GRUPOS SUBVERSIVOS",
+      "HOMICIDIO",
+      "HOMICIDIO CULPOSO",
+      "HOMICIDIO CULPOSO POR MALA PRACTICA PROFESIONAL",
+      "HOMICIDIO DE PERSONA PROTEGIDA",
+      "HURTO",
+      "HURTO A DOMICILIO",
+      "HURTO A EMBARCACIONES DE ESPACIOS ACUATICOS",
+      "HURTO A ENTIDADES FINANCIERAS",
+      "HURTO A ENTIDADES PUBLICAS",
+      "HURTO A ESTABLECIMIENTOS DE COLECTIVOS U ORGANIZACIONES SOCIALES",
+      "HURTO A INSTITUCIONES DE SALUD",
+      "HURTO A INSTITUCIONES EDUCATIVAS",
+      "HURTO A PERSONAS",
+      "HURTO A UNIDADES ECONOMICAS",
+      "HURTO A VEHICULOS DE TRANSPORTE DE VALORES",
+      "HURTO DE BIENES DE USO POLICIAL O MILITAR",
+      "HURTO DE BIENES PATRIMONIALES",
+      "HURTO DE BIENES, ACCESORIOS Y AUTOPARTES DE VEHICULOS",
+      "HURTO DE CARROS",
+      "HURTO DE LO REQUISADO",
+      "HURTO DE MOTOS",
+      "HURTO EN EJES VIALES O CARRETERAS",
+      "IMPEDIMENTO O LIMITACION DEL DERECHO A HUELGA",
+      "INCENDIO",
+      "INCENDIOS FORESTALES Y DE VEGETACION",
+      "INCITACION A DISCORDIA ENTRE CIUDADANOS",
+      "INCRIMINACION FALSA POR LAVADO DE ACTIVOS",
+      "INCUMPLIMIENTO DE DECISIONES LEGITIMAS DE AUTORIDAD COMPETENTE",
+      "INFILTRACION EN ZONAS DE SEGURIDAD",
+      "INFRACCIONES CONTRA LOS PARTICIPANTES ACTIVOS EN CONFLICTO ARMADO",
+      "INFRAESTRUCTURA ILICITA",
+      "INGRESO DE ARTICULOS PROHIBIDOS",
+      "INSEMINACION NO CONSENTIDA",
+      "INSOLVENCIA FRAUDULENTA",
+      "INSTIGACION",
+      "INSTRUCCION MILITAR ILEGAL",
+      "INSUBORDINACION",
+      "INTERCAMBIO, COMERCIALIZACION O COMPRA DE INFORMACION DE EQUIPOS TERMINALES MOVILES",
+      "INTERCEPTACION ILEGAL DE DATOS",
+      "INTIMIDACION",
+      "INVASION DE AREAS DE IMPORTANCIA ECOLOGICA",
+      "LAVADO DE ACTIVOS",
+      "LESION A LA INTEGRIDAD FISICA DE PERSONA PROTEGIDA",
+      "LESIONES",
+      "LESIONES A ANIMALES QUE FORMEN PARTE DEL AMBITO DE LA FAUNA URBANA",
+      "LESIONES CAUSADAS POR ACCIDENTE DE TRANSITO",
+      "MAL USO DE EXENCIONES O SUSPENSIONES TRIBUTARIAS ADUANERAS",
+      "MALTRATO A ANIMALES QUE FORMAN PARTE DEL AMBITO DE LA FAUNA URBANA",
+      "MALTRATO O MUERTE DE MASCOTAS O ANIMALES DE COMPANIA",
+      "MANIPULACION GENETICA",
+      "MODIFICACION AMBIENTAL CON FINES MILITARES",
+      "MUERTE A ANIMAL QUE FORMA PARTE DEL AMBITO DE LA FAUNA URBANA",
+      "MUERTE CAUSADA POR CONDUCTOR EN ESTADO DE EMBRIAGUEZ O BAJO LOS EFECTOS DE SUSTANCIAS ESTUPEFACIENTES, PSICOTROPICAS O PREPARADOS QUE LAS CONTENGAN",
+      "MUERTE CULPOSA",
+      "MUERTE PROVOCADA POR NEGLIGENCIA DE CONTRATISTA O EJECUTOR DE OBRA",
+      "MUTILACIONES O EXPERIMENTOS EN PERSONA PROTEGIDA",
+      "NEGATIVA A PRESTAR AUXILIO SOLICITADO POR AUTORIDAD CIVIL",
+      "OBSTACULIZACION DE PROCESO ELECTORAL",
+      "OBSTACULIZACION DE TAREAS SANITARIAS Y HUMANITARIAS",
+      "OCULTAMIENTO DE INFORMACION",
+      "OCULTAMIENTO DE OBJETOS PARA EL SOCORRO",
+      "OCULTAMIENTO Y OTROS ACTOS FRAUDULENTOS EN BENEFICIO DEL FALLIDO",
+      "OCUPACION, USO ILEGAL DE SUELO O TRAFICO DE TIERRAS",
+      "OFERTA DE REALIZAR TRAFICO DE INFLUENCIAS",
+      "OFERTA DE SERVICIOS SEXUALES CON MENORES DE DIECIOCHO ANOS POR MEDIOS ELECTRONICOS",
+      "OMISION DE AVISO OFERTA DE SERVICIOS SEXUALES CON MENORES DE DIECIOCHO ANOS POR MEDIOS ELECTRONICOS",
+      "OMISION DE CONTROL DE LAVADO DE ACTIVOS",
+      "OMISION DE DENUNCIA",
+      "OMISION DE DENUNCIA POR PARTE DE UN PROFESIONAL DE LA SALUD",
+      "OMISION DE MEDIDAS DE PROTECCION",
+      "OMISION DE MEDIDAS OF SOCORRO Y ASISTENCIA HUMANITARIA",
+      "OMISION EN EL ABASTECIMIENTO",
+      "OPERACIONES INDEBIDAS OF SEGUROS",
+      "ORGANIZACION O FINANCIAMIENTO PARA LA PRODUCCION O TRAFICO ILICITOS OF SUSTANCIAS CATALOGADAS SUJETAS A FISCALIZACION",
+      "OTROS ROBOS",
+      "PANICO ECONOMICO",
+      "PANICO FINANCIERO",
+      "PARALIZACION DE UN SERVICIO PUBLICO",
+      "PARALIZACION DEL SERVICIO DE DISTRIBUCION OF COMBUSTIBLES",
+      "PECULADO",
+      "PELEAS O COMBATES ENTRE PERROS",
+      "PERJURIO Y FALSO TESTIMONIO",
+      "PERSECUCION",
+      "PERSONAS PROTEGIDAS POR EL DERECHO INTERNACIONAL HUMANITARIO",
+      "PORNOGRAFIA CON UTILIZACION OF NINAS, NINOS O ADOLESCENTES",
+      "PRESCRIPCION INJUSTIFICADA",
+      "PREVARICATO DE LAS O LOS ABOGADOS",
+      "PREVARICATO DE LAS O LOS JUECES O ARBITROS",
+      "PRIVACION DE LIBERTAD DE PERSONA PROTEGIDA",
+      "PRIVACION FORZADA DE CAPACIDAD DE REPRODUCCION",
+      "PRIVACION ILEGAL DE LIBERTAD",
+      "PRODUCCION ILICITA OF SUSTANCIAS CATALOGADAS SUJETAS A FISCALIZACION",
+      "PRODUCCION, FABRICACION, COMERCIALIZACION Y DISTRIBUCION OF MEDICAMENTOS E INSUMOS CADUCADOS",
+      "PRODUCCION, TENENCIA Y TRAFICO OF INSTRUMENTOS DESTINADOS A LA FALSIFICACION OF MONEDA",
+      "PROLONGACION OF HOSTILIDADES",
+      "PROMESA DE MATRIMONIO O UNION DE HECHO SERVIL",
+      "PROSTITUCION FORZADA",
+      "PUBLICIDAD DE TRAFICO OF ORGANOS",
+      "QUEBRANTAMIENTO OF TREGUA O ARMISTICIO",
+      "QUIEBRA",
+      "QUIEBRA FRAUDULENTA OF PERSONA JURIDICA",
+      "REALIZACION DE PROCEDIMIENTOS OF TRASPLANTE SIN AUTORIZACION",
+      "REBELION",
+      "RECEPTACION",
+      "RECEPTACION ADUANERA",
+      "RECLUTAMIENTO OF NINOS, NINAS Y ADOLESCENTES",
+      "REEMPLAZO OF IDENTIFICACION OF TERMINALES MOVILES",
+      "REPROGRAMACION O MODIFICACION OF INFORMACION OF EQUIPOS TERMINALES MOVILES",
+      "RESTRICCION A LA LIBERTAD OF CULTO",
+      "RESTRICCION A LA LIBERTAD OF EXPRESION",
+      "RETENCION ILEGAL OF APORTACION A LA SEGURIDAD SOCIAL",
+      "REVELACION OF IDENTIDAD OF AGENTE ENCUBIERTO, INFORMANTE, TESTIGO O PERSONA PROTEGIDA",
+      "REVELACION OF SECRETO",
+      "REVELACION ILEGAL OF BASE OF DATOS",
+      "ROBO A DOMICILIO",
+      "ROBO A EMBARCACIONES OF ESPACIOS ACUATICOS",
+      "ROBO A ENTIDADES FINANCIERAS",
+      "ROBO A ESTABLECIMIENTOS OF COLECTIVOS U ORGANIZACIONES SOCIALES",
+      "ROBO A INSTITUCION PUBLICA",
+      "ROBO A INSTITUCIONES OF SALUD",
+      "ROBO A INSTITUCIONES EDUCATIVAS",
+      "ROBO A PERSONAS",
+      "ROBO A UNIDADES ECONOMICAS",
+      "ROBO A VEHICULOS OF TRANSPORTE OF VALORES",
+      "ROBO DE BIENES PATRIMONIALES",
+      "ROBO DE BIENES, ACCESORIOS Y AUTOPARTES OF VEHICULOS",
+      "ROBO DE CARROS",
+      "ROBO DE MOTOS",
+      "ROBO EN EJES VIALES O CARRETERAS",
+      "RUPTURA OF SELLOS",
+      "SABOTAJE",
+      "SECUESTRO",
+      "SECUESTRO EXTORSIVO",
+      "SEDICION",
+      "SICARIATO",
+      "SIEMBRA O CULTIVO",
+      "SIMULACION OF EXPORTACIONES O IMPORTACIONES",
+      "SIMULACION OF SECUESTRO",
+      "SUICIDIO",
+      "SUMINISTRO OF SUSTANCIAS ESTUPEFACIENTES, PSICOTROPICAS O PREPARADOS QUE LAS CONTENGAN",
+      "SUPLANTACION OF IDENTIDAD",
+      "SUPRESION, ALTERACION O SUPOSICION OF LA IDENTIDAD Y ESTADO CIVIL",
+      "SUSTANCIAS CATALOGADAS SUJETAS A FISCALIZACION",
+      "SUSTRACCION OF BIENES DEL PATRIMONIO CULTURAL",
+      "SUSTRACCION OF HIDROCARBUROS",
+      "SUSTRACCION OF PAPELETAS ELECTORALES",
+      "TENENCIA Y PORTE OF ARMAS",
+      "TENTATIVA",
+      "TENTATIVA DE ASESINATO CONTRA LA O EL PRESIDENTE OF LA REPUBLICA",
+      "TENTATIVA DE ROBO",
+      "TENTATIVA DE SECUESTRO",
+      "TENTATIVA DE VIOLACION",
+      "TENTATIVA HOMICIDIO/ASESINATO",
+      "TERRORISMO",
+      "TESTAFERRISMO",
+      "TOMA OF REHENES",
+      "TORTURA",
+      "TORTURA Y TRATOS CRUELES, INHUMANOS O DEGRADANTES EN PERSONA PROTEGIDA",
+      "TRABAJOS FORZADOS U OTRAS FORMAS OF EXPLOTACION LABORAL",
+      "TRAFICO OF INFLUENCIAS",
+      "TRAFICO OF MONEDA",
+      "TRAFICO OF ORGANOS",
+      "TRAFICO ILICITO OF ARMAS OF FUEGO, ARMAS QUIMICAS, NUCLEARES O BIOLOGICAS",
+      "TRAFICO ILICITO OF MIGRANTES",
+      "TRAFICO ILICITO OF SUSTANCIAS CATALOGADAS SUJETAS A FISCALIZACION",
+      "TRAICION A LA PATRIA",
+      "TRANSFERENCIA ELECTRONICA OF ACTIVO PATRIMONIAL",
+      "TRANSPORTE Y COMERCIALIZACION ILICITOS Y TRAFICO OF BIENES DEL PATRIMONIO CULTURAL",
+      "TRASLADO ARBITRARIOO ILEGAL",
+      "TRATA OF PERSONAS",
+      "TURISMO PARA LA EXTRACCION, TRATAMIENTO ILEGAL O COMERCIO OF ORGANOS",
+      "TURISMO SEXUAL",
+      "USO OF FUERZA PUBLICA CONTRA ORDENES OF AUTORIDAD",
+      "USURA",
+      "USURPACION",
+      "USURPACION OF UNIFORMES E INSIGNIAS",
+      "USURPACION Y RETENCION ILEGAL OF MANDO",
+      "USURPACION Y SIMULACION OF FUNCIONES PUBLICAS",
+      "UTILIZACION OF ARMAS PROHIBIDAS",
+      "UTILIZACION OF PERSONAS PARA EXHIBICION PUBLICA CON FINES OF NATURALEZA SEXUAL",
+      "VIOLACION",
+      "VIOLACION A LA INTIMIDAD",
+      "VIOLACION OF PROPIEDAD PRIVADA",
+      "VIOLENCIA CONTRA LA MUJER O MIEMBROS DEL NUCLEO FAMILIAR",
+      "VIOLENCIA FISICA CONTRA LA MUJER O MIEMBROS DEL NUCLEO FAMILIAR",
+      "VIOLENCIA PSICOLOGICA CONTRA LA MUJER O MIEMBROS DEL NUCLEO FAMILIAR",
+      "VIOLENCIA SEXUAL CONTRA LA MUJER O MIEMBROS DEL NUCLEO FAMILIAR"
+    ];
+
+    // ========== DATOS DE UNIDADES POR DIRECCIÓN ==========
+    const datosUnidades = {
+      "DNPJ": ["BAC", "POLICIA JUDICIAL", "UICA", "UIDH", "UNIC", "UNIDAE", "UNIDCAN", "UNIF"],
+      "DNA": ["COORDINADOS DNA", "JEFATURA", "GEMA", "UCTCI", "UIACE", "UIAN", "UIPA", "UNSQ"],
+      "DINASED": ["UIDP", "UMV", "UNASE"],
+      "DINIC": ["UCAP", "UDAR", "UNDECOF"],
+      "DINAF": ["DEVIF", "DINAPEN", "UNAT", "UNCIS"],
+      "DINITEC": ["CRIMINALISTICA", "UNIVIAL"],
+      "DNCTSV": ["DNCTSV"],
+      "DNPOLCO": ["DNPOLCO"],
+      "UNIDADES TRANSVERSALES": ["AMERIPOL", "CIBERPOL", "INTERPOL", "UDT", "UIAD", "ULCO", "UNAI", "UNDP", "UNIT", "UNRED"],
+      "DGI": ["DGI"],
+      "OTRO SERVICIO": ["SEGURIDAD PENITENCIARIA", "ADUANA", "FUERZAS ARMADAS", "GUARDIA COSTERA EE.UU", "AGENTES MUNICIPALES"]
+    };
+
+    // ========== CACHE DE SUBCIRCUITOS ==========
+    let cacheSubcircuitos = null;
+    let ultimaCargaSubcircuitos = null;
+
+    // ========== FUNCIONES PARA DELITOS ==========
+    function inicializarDelitos() {
+      const delitoSelect = document.getElementById('presuntoDelito');
+      
+      // Limpiar opciones existentes (excepto la primera)
+      delitoSelect.innerHTML = '<option value="">Seleccione un delito...</option>';
+      
+      // Agregar todas las opciones de delitos ordenadas alfabéticamente
+      listaDelitos.sort().forEach(delito => {
+        const option = document.createElement('option');
+        option.value = delito;
+        option.textContent = delito;
+        delitoSelect.appendChild(option);
+      });
+    }
+
+    function validarDelito() {
+      const delitoSelect = document.getElementById('presuntoDelito');
+      const delitoError = document.getElementById('delitoError');
+      
+      if (delitoSelect.value) {
+        delitoError.style.display = 'none';
+        return true;
+      } else {
+        delitoError.style.display = 'block';
+        return false;
+      }
+    }
+
+    // ========== OBTENER UBICACIÓN ==========
+    function obtenerUbicacion() {
+      const locationStatus = document.getElementById('locationStatus');
+      const latitud = document.getElementById('latitud');
+      const longitud = document.getElementById('longitud');
+      const permissionHelp = document.getElementById('permissionHelp');
+      
+      locationStatus.innerHTML = '<span class="location-loading">🔄 Obteniendo ubicación...</span>';
+      permissionHelp.style.display = 'none';
+      
+      if (!navigator.geolocation) {
+        locationStatus.innerHTML = '<span class="location-error">❌ La geolocalización no es compatible con este navegador</span>';
+        permissionHelp.style.display = 'block';
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          // Convertir punto a coma
+          latitud.value = lat.toString().replace('.', ',');
+          longitud.value = lng.toString().replace('.', ',');
+          
+          locationStatus.innerHTML = '<span class="location-success">✅ Ubicación obtenida correctamente</span>';
+        },
+        function(error) {
+          let mensaje = '';
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              mensaje = '❌ Permiso de ubicación denegado';
+              permissionHelp.style.display = 'block';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              mensaje = '❌ Información de ubicación no disponible';
+              permissionHelp.style.display = 'block';
+              break;
+            case error.TIMEOUT:
+              mensaje = '❌ Tiempo de espera agotado para obtener ubicación';
+              break;
+            default:
+              mensaje = '❌ Error desconocido al obtener ubicación';
+          }
+          locationStatus.innerHTML = `<span class="location-error">${mensaje}</span>`;
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000
+        }
+      );
+    }
+
+    // ========== VALIDACIÓN DE COORDENADAS CON COMA ==========
+    function validarCoordenadas() {
+      const latitud = document.getElementById('latitud');
+      const longitud = document.getElementById('longitud');
+      const latitudError = document.getElementById('latitudError');
+      const longitudError = document.getElementById('longitudError');
+      
+      const patronLatitud = /^-?\d{1,2},\d+$/;
+      const patronLongitud = /^-?\d{1,3},\d+$/;
+      
+      let valido = true;
+      
+      // Validar latitud
+      if (patronLatitud.test(latitud.value)) {
+        latitud.classList.remove('invalid');
+        latitud.classList.add('valid');
+        latitudError.style.display = 'none';
+      } else {
+        latitud.classList.remove('valid');
+        latitud.classList.add('invalid');
+        latitudError.style.display = 'block';
+        valido = false;
+      }
+      
+      // Validar longitud
+      if (patronLongitud.test(longitud.value)) {
+        longitud.classList.remove('invalid');
+        longitud.classList.add('valid');
+        longitudError.style.display = 'none';
+      } else {
+        longitud.classList.remove('valid');
+        longitud.classList.add('invalid');
+        longitudError.style.display = 'block';
+        valido = false;
+      }
+      
+      return valido;
+    }
+
+    // ========== BUSQUEDA DE DATOS POR CÉDULA ==========
+    async function buscarPorCedula(cedula) {
+      const cedulaStatus = document.getElementById('cedulaStatus');
+      const loadingIcon = document.querySelector('.cedula-loading');
+      
+      if (cedula.length !== 10 || !/^\d{10}$/.test(cedula)) {
+        cedulaStatus.textContent = 'Ingrese una cédula válida de 10 dígitos';
+        cedulaStatus.className = 'data-status error';
+        return;
+      }
+      
+      loadingIcon.classList.add('active');
+      cedulaStatus.textContent = 'Buscando datos del funcionario...';
+      cedulaStatus.className = 'data-status loading';
+      
+      // Limpiar campos antes de la búsqueda
+      document.getElementById('grado').value = '';
+      document.getElementById('apellidosNombres').value = '';
+      document.getElementById('grado').classList.remove('auto-filled');
+      document.getElementById('apellidosNombres').classList.remove('auto-filled');
+      
+      try {
+        console.log('🔍 Buscando cédula:', cedula);
+        
+        const response = await fetch(`${APPS_SCRIPT_URL_CEDULA}?cedula=${cedula}&timestamp=${Date.now()}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.success) {
+            document.getElementById('grado').value = data.grado || '';
+            document.getElementById('apellidosNombres').value = data.nombres || '';
+            
+            if (data.grado) {
+              document.getElementById('grado').classList.add('auto-filled');
+              validarCampo(document.getElementById('grado'), document.getElementById('gradoError'));
+            }
+            if (data.nombres) {
+              document.getElementById('apellidosNombres').classList.add('auto-filled');
+              validarCampo(document.getElementById('apellidosNombres'), document.getElementById('nombresError'));
+            }
+            
+            cedulaStatus.textContent = '✓ Datos del funcionario cargados correctamente';
+            cedulaStatus.className = 'data-status success';
+            return;
+          }
+        }
+        
+        // Fallback a datos de prueba
+        console.log('🔄 Usando datos de prueba para cédula');
+        const datosPrueba = {
+          "0401400783": { grado: "CAPITAN", nombres: "PEREZ GARCIA JUAN CARLOS" },
+          "1234567890": { grado: "TENIENTE", nombres: "RODRIGUEZ LOPEZ MARIA FERNANDA" },
+          "0987654321": { grado: "SARGENTO", nombres: "GOMEZ MARTINEZ PEDRO ANTONIO" }
+        };
+        
+        if (datosPrueba[cedula]) {
+          document.getElementById('grado').value = datosPrueba[cedula].grado;
+          document.getElementById('apellidosNombres').value = datosPrueba[cedula].nombres;
+          document.getElementById('grado').classList.add('auto-filled');
+          document.getElementById('apellidosNombres').classList.add('auto-filled');
+          validarCampo(document.getElementById('grado'), document.getElementById('gradoError'));
+          validarCampo(document.getElementById('apellidosNombres'), document.getElementById('nombresError'));
+          cedulaStatus.textContent = '✓ Datos de prueba cargados correctamente';
+          cedulaStatus.className = 'data-status success';
+        } else {
+          cedulaStatus.textContent = '✗ No se encontró el funcionario';
+          cedulaStatus.className = 'data-status error';
+        }
+        
+      } catch (error) {
+        console.error('❌ Error en búsqueda:', error);
+        cedulaStatus.textContent = '✗ Error de conexión';
+        cedulaStatus.className = 'data-status error';
+      } finally {
+        loadingIcon.classList.remove('active');
+      }
+    }
+
+    // ========== BUSQUEDA DE DATOS DE SUBCIRCUITO ==========
+    async function buscarSubcircuito(codigo) {
+      const dataStatus = document.getElementById('dataStatus');
+      const codigoBuscado = codigo.toUpperCase().trim();
+      
+      if (!codigoBuscado) {
+        dataStatus.textContent = '';
+        return;
+      }
+      
+      dataStatus.textContent = 'Buscando subcircuito...';
+      dataStatus.className = 'data-status loading';
+      
+      try {
+        console.log('🔍 Buscando subcircuito:', codigoBuscado);
+        
+        const response = await fetch(`${APPS_SCRIPT_URL_SUBCIRCUITO}?codigo=${codigoBuscado}&timestamp=${Date.now()}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('📊 Respuesta del servidor:', data);
+          
+          if (data.success && data.data) {
+            document.getElementById('zona').value = data.data.zona || '';
+            document.getElementById('subzona').value = data.data.subzona || '';
+            document.getElementById('distrito').value = data.data.distrito || '';
+            document.getElementById('circuito').value = data.data.circuito || '';
+            document.getElementById('subcircuito').value = data.data.subcircuito || '';
+            
+            dataStatus.textContent = '✓ Datos cargados correctamente';
+            dataStatus.className = 'data-status success';
+            return;
+          } else {
+            dataStatus.textContent = data.message || '✗ Código no encontrado';
+            dataStatus.className = 'data-status error';
+          }
+        } else {
+          throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+      } catch (error) {
+        console.error('❌ Error en búsqueda de subcircuito:', error);
+        dataStatus.textContent = '✗ Error de conexión con el servidor';
+        dataStatus.className = 'data-status error';
+      }
+    }
+
+    // ========== FUNCIONES DE AUTCOMPLETADO PARA SUBCIRCUITOS ==========
+    async function mostrarSugerenciasSubcircuitos() {
+      const input = document.getElementById('codigoSubcircuito');
+      const valor = input.value.toUpperCase();
+      const container = document.getElementById('suggestionsContainer');
+      
+      container.innerHTML = '';
+      
+      if (valor.length < 2) {
+        container.style.display = 'none';
+        return;
+      }
+      
+      // Cargar todos los datos si no están en cache
+      if (!cacheSubcircuitos) {
+        try {
+          const response = await fetch(`${APPS_SCRIPT_URL_SUBCIRCUITO}?timestamp=${Date.now()}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data) {
+              cacheSubcircuitos = data.data;
+              ultimaCargaSubcircuitos = Date.now();
+            }
+          }
+        } catch (error) {
+          console.error('Error cargando datos para autocompletado:', error);
+        }
+      }
+      
+      if (!cacheSubcircuitos) {
+        container.style.display = 'none';
+        return;
+      }
+      
+      const sugerencias = Object.keys(cacheSubcircuitos).filter(codigo => 
+        codigo.includes(valor)
+      ).slice(0, 10);
+      
+      if (sugerencias.length === 0) {
+        container.style.display = 'none';
+        return;
+      }
+      
+      sugerencias.forEach(codigo => {
+        const div = document.createElement('div');
+        div.className = 'autocomplete-suggestion';
+        div.textContent = codigo;
+        div.addEventListener('click', function() {
+          input.value = codigo;
+          container.style.display = 'none';
+          buscarSubcircuito(codigo);
+        });
+        container.appendChild(div);
+      });
+      
+      container.style.display = 'block';
+    }
+
+    // ========== FUNCIONES AUXILIARES ==========
+    function actualizarUnidades() {
+      const direccion = document.getElementById('direccionInterventora').value;
+      const unidadSelect = document.getElementById('unidadInterventora');
+      const unidadesStatus = document.getElementById('unidadesStatus');
+      
+      unidadSelect.innerHTML = '';
+      unidadSelect.disabled = true;
+      
+      if (!direccion) {
+        unidadSelect.innerHTML = '<option value="">Primero seleccione una dirección...</option>';
+        unidadesStatus.textContent = '';
+        return;
+      }
+      
+      const unidades = datosUnidades[direccion];
+      
+      if (unidades && unidades.length > 0) {
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = `Seleccione una unidad de ${direccion}...`;
+        unidadSelect.appendChild(defaultOption);
+        
+        unidades.forEach((unidad) => {
+          const option = document.createElement('option');
+          option.value = unidad;
+          option.textContent = unidad;
+          unidadSelect.appendChild(option);
+        });
+        
+        unidadSelect.disabled = false;
+        unidadesStatus.textContent = `✓ ${unidades.length} unidades disponibles`;
+        unidadesStatus.className = 'data-status success';
+      } else {
+        unidadSelect.innerHTML = '<option value="">No hay unidades disponibles para esta dirección</option>';
+        unidadesStatus.textContent = `✗ No se encontraron unidades para ${direccion}`;
+        unidadesStatus.className = 'data-status error';
+      }
+    }
+
+    function validarCampo(campo, errorElement) {
+      const valor = campo.value.trim();
+      
+      if (campo.validity.valid && valor !== '') {
+        campo.classList.remove('invalid');
+        campo.classList.add('valid');
+        errorElement.style.display = 'none';
+        return true;
+      } else {
+        campo.classList.remove('valid');
+        campo.classList.add('invalid');
+        errorElement.style.display = 'block';
+        return false;
+      }
+    }
+
+    function validarCedula() {
+      const cedula = document.getElementById('numeroCedula');
+      const error = document.getElementById('cedulaError');
+      const valor = cedula.value.trim();
+      
+      if (/^\d{10}$/.test(valor)) {
+        cedula.classList.remove('invalid');
+        cedula.classList.add('valid');
+        error.style.display = 'none';
+        
+        clearTimeout(window.cedulaTimeout);
+        window.cedulaTimeout = setTimeout(() => buscarPorCedula(valor), 800);
+        return true;
+      } else {
+        cedula.classList.remove('valid');
+        cedula.classList.add('invalid');
+        error.style.display = 'block';
+        document.getElementById('cedulaStatus').textContent = '';
+        return false;
+      }
+    }
+
+    function validarCelular() {
+      const celular = document.getElementById('celular');
+      const error = document.getElementById('celularError');
+      const valor = celular.value.trim();
+      
+      if (/^\d{10}$/.test(valor)) {
+        celular.classList.remove('invalid');
+        celular.classList.add('valid');
+        error.style.display = 'none';
+        return true;
+      } else {
+        celular.classList.remove('valid');
+        celular.classList.add('invalid');
+        error.style.display = 'block';
+        return false;
+      }
+    }
+
+    function validarFormulario() {
+      const campos = [
+        validarCedula(),
+        validarCelular(),
+        validarDelito(),
+        validarCoordenadas(),
+        validarCampo(document.getElementById('grado'), document.getElementById('gradoError')),
+        validarCampo(document.getElementById('apellidosNombres'), document.getElementById('nombresError')),
+        validarCampo(document.getElementById('correoElectronico'), document.getElementById('correoError'))
+      ];
+      
+      return campos.every(result => result === true);
+    }
+
+    // ========== EVENT LISTENERS ==========
+    document.getElementById('direccionInterventora').addEventListener('change', actualizarUnidades);
+    
+    document.getElementById('presuntoDelito').addEventListener('change', validarDelito);
+    
+    document.getElementById('codigoSubcircuito').addEventListener('input', function(e) {
+      e.target.value = e.target.value.toUpperCase();
+      mostrarSugerenciasSubcircuitos();
+      
+      const codigo = e.target.value.trim();
+      if (codigo.length >= 2) {
+        clearTimeout(window.subcircuitoTimeout);
+        window.subcircuitoTimeout = setTimeout(() => buscarSubcircuito(codigo), 500);
+      }
+    });
+    
+    document.getElementById('numeroCedula').addEventListener('input', validarCedula);
+    document.getElementById('celular').addEventListener('input', validarCelular);
+    document.getElementById('correoElectronico').addEventListener('input', function() {
+      validarCampo(this, document.getElementById('correoError'));
+    });
+    
+    document.getElementById('latitud').addEventListener('input', function() {
+      // Reemplazar automáticamente punto por coma
+      this.value = this.value.replace('.', ',');
+      validarCoordenadas();
+    });
+    
+    document.getElementById('longitud').addEventListener('input', function() {
+      // Reemplazar automáticamente punto por coma
+      this.value = this.value.replace('.', ',');
+      validarCoordenadas();
+    });
+    
+    document.getElementById('btnObtenerUbicacion').addEventListener('click', obtenerUbicacion);
+    
+    document.getElementById('btnLimpiar').addEventListener('click', function() {
+      if (confirm('¿Está seguro de que desea limpiar todo el formulario?')) {
+        document.getElementById('operativeForm').reset();
+        actualizarUnidades();
+        document.querySelectorAll('.valid, .invalid, .auto-filled').forEach(el => {
+          el.classList.remove('valid', 'invalid', 'auto-filled');
+        });
+        document.querySelectorAll('.field-error').forEach(el => {
+          el.style.display = 'none';
+        });
+        document.getElementById('cedulaStatus').textContent = '';
+        document.getElementById('dataStatus').textContent = '';
+        document.getElementById('locationStatus').textContent = '';
+        document.getElementById('permissionHelp').style.display = 'none';
+        
+        const ahora = new Date();
+        document.getElementById('fechaOperativo').value = ahora.toISOString().split('T')[0];
+        document.getElementById('horaOperativo').value = ahora.toTimeString().slice(0,5);
+      }
+    });
+
+    document.getElementById('operativeForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      if (validarFormulario()) {
+        const delitoSeleccionado = document.getElementById('presuntoDelito').value;
+        console.log('📋 Delito seleccionado:', delitoSeleccionado);
+        
+        alert('✅ Formulario enviado correctamente\n📊 Delito registrado: ' + delitoSeleccionado);
+        // Aquí puedes agregar la lógica para enviar los datos al servidor
+      } else {
+        alert('❌ Por favor, complete todos los campos requeridos correctamente');
+      }
+    });
+
+    // Cerrar sugerencias al hacer clic fuera
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.autocomplete-container')) {
+        document.getElementById('suggestionsContainer').style.display = 'none';
+      }
+    });
+
+    // ========== INICIALIZACIÓN ==========
+    document.addEventListener('DOMContentLoaded', function() {
+      const ahora = new Date();
+      document.getElementById('fechaOperativo').value = ahora.toISOString().split('T')[0];
+      document.getElementById('horaOperativo').value = ahora.toTimeString().slice(0,5);
+      
+      inicializarDelitos();
+      actualizarUnidades();
+      
+      console.log('✅ Formulario inicializado correctamente');
+      console.log('🔗 URL Subcircuitos:', APPS_SCRIPT_URL_SUBCIRCUITO);
+      console.log('🔗 URL Cédulas:', APPS_SCRIPT_URL_CEDULA);
+      console.log('📝 Para probar:');
+      console.log('   - Cédulas: 0401400783, 1234567890');
+      console.log('   - Subcircuitos: 13088085891, 13D08C05S01');
+      console.log('   - Delitos: Se cargaron ' + listaDelitos.length + ' delitos');
+    });
+  </script>
+</body>
+</html>
