@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulario de Operativos (Geolocalización Automática)</title>
+    <style>
+        /* Estilos CSS simples para asegurar que se muestren individualmente y sean legibles */
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .campo { margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed #eee; }
+        label { display: block; font-weight: bold; margin-bottom: 3px; color: #333; }
+        input:not([type="submit"]):not([type="file"]), select, textarea {
+            width: 350px;
+            padding: 7px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea { height: 60px; resize: vertical; }
+        .submit-button { margin-top: 20px; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+
+    <script>
+        // Función de JavaScript para obtener la ubicación
+        function obtenerUbicacion() {
+            if (navigator.geolocation) {
+                // Opciones para mayor precisión y manejo de tiempo de espera
+                const options = {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                };
+
+                // Intenta obtener la posición actual
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const latitud = position.coords.latitude;
+                        const longitud = position.coords.longitude;
+
+                        // Rellena los campos con las coordenadas (formato a 6 decimales)
+                        document.getElementById('latitud').value = latitud.toFixed(6); 
+                        document.getElementById('longitud').value = longitud.toFixed(6);
+                    },
+                    (error) => {
+                        // Maneja errores (ej: usuario denegó permiso, o no se encontró ubicación)
+                        console.warn(`ERROR(${error.code}): ${error.message}`);
+                        document.getElementById('latitud').value = 'Permiso Denegado o Error';
+                        document.getElementById('longitud').value = 'Permiso Denegado o Error';
+                    },
+                    options
+                );
+            } else {
+                // Si la geolocalización no es soportada por el navegador
+                document.getElementById('latitud').value = 'Geolocalización no soportada';
+                document.getElementById('longitud').value = 'Geolocalización no soportada';
+            }
+        }
+    </script>
+</head>
+
+<body onload="obtenerUbicacion()">
+
+    <h1>Registro de Operativo Policial</h1>
+    
+    <form action="/procesar-operativo" method="POST" enctype="multipart/form-data">
+        
+        <div class="campo">
+            <label for="fecha_operativo">FECHA DEL OPERATIVO:</label>
+            <input type="date" id="fecha_operativo" name="fecha_operativo" required value="2025-11-18">
+        </div>
+        
+        <div class="campo">
+            <label for="hora_operativo">HORA DEL OPERATIVO:</label>
+            <input type="time" id="hora_operativo" name="hora_operativo" required value="17:18">
+        </div>
+
+        <div class="campo">
+            <label for="direccion_interventora">DIRECCIÓN INTERVENTORA:</label>
+            <input type="text" id="direccion_interventora" name="direccion_interventora">
+        </div>
+
+        <div class="campo">
+            <label for="unidad_interventora">UNIDAD INTERVENTORA:</label>
+            <input type="text" id="unidad_interventora" name="unidad_interventora">
+        </div>
+
+        <div class="campo">
+            <label for="codigo_subcircuito">CÓDIGO DE SUBCIRCUITO:</label>
+            <input type="text" id="codigo_subcircuito" name="codigo_subcircuito">
+        </div>
+
+        <div class="campo">
+            <label for="zona">ZONA:</label>
+            <input type="text" id="zona" name="zona">
+        </div>
+
+        <div class="campo">
+            <label for="subzona">SUBZONA:</label>
+            <input type="text" id="subzona" name="subzona">
+        </div>
+
+        <div class="campo">
+            <label for="distrito">DISTRITO:</label>
+            <input type="text" id="distrito" name="distrito">
+        </div>
+
+        <div class="campo">
+            <label for="circuito">CIRCUITO:</label>
+            <input type="text" id="circuito" name="circuito">
+        </div>
+
+        <div class="campo">
+            <label for="subcircuito">SUBCIRCUITO:</label>
+            <input type="text" id="subcircuito" name="subcircuito">
+        </div>
+        
+        <div class="campo">
+            <label for="latitud">LATITUD:</label>
+            <input type="text" id="latitud" name="latitud" placeholder="Cargando ubicación...">
+        </div>
+        
+        <div class="campo">
+            <label for="longitud">LONGITUD:</label>
+            <input type="text" id="longitud" name="longitud" placeholder="Cargando ubicación...">
+        </div>
+
+        <div class="campo">
+            <label for="direccion_op">DIRECCIÓN:</label>
+            <input type="text" id="direccion_op" name="direccion_op">
+        </div>
+
+        <div class="campo">
+            <label for="presunto_delito">PRESUNTO DELITO:</label>
+            <input type="text" id="presunto_delito" name="presunto_delito">
+        </div>
+
+        <div class="campo">
+            <label for="extracto_caso">EXTRACTO DEL CASO:</label>
+            <textarea id="extracto_caso" name="extracto_caso"></textarea>
+        </div>
+
+        <div class="campo">
+            <label for="tipo_ejecucion">TIPO DE EJECUCIÓN DE LA OPERACIÓN:</label>
+            <input type="text" id="tipo_ejecucion" name="tipo_ejecucion">
+        </div>
+
+        <div class="campo">
+            <label for="tipo_coordinacion">TIPO DE COORDINACIÓN:</label>
+            <input type="text" id="tipo_coordinacion" name="tipo_coordinacion">
+        </div>
+        
+        <div class="campo">
+            <label for="caracterizacion_aprehendido">CARACTERIZACIÓN DEL APREHENDIDO/DETENIDO:</label>
+            <input type="text" id="caracterizacion_aprehendido" name="caracterizacion_aprehendido">
+        </div>
+
+        <div class="campo">
+            <label for="variables_productividad">VARIABLES DE PRODUCTIVIDAD:</label>
+            <input type="text" id="variables_productividad" name="variables_productividad">
+        </div>
+
+        <div class="campo">
+            <label for="aeronaves">AERONAVES (UND):</label>
+            <input type="number" id="aeronaves" name="aeronaves" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="allanamientos">ALLANAMIENTOS:</label>
+            <input type="number" id="allanamientos" name="allanamientos" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="cant_aprehendidos">CANTIDAD APREHENDIDOS:</label>
+            <input type="number" id="cant_aprehendidos" name="cant_aprehendidos" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="cant_detenidos">CANTIDAD DETENIDOS:</label>
+            <input type="number" id="cant_detenidos" name="cant_detenidos" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="cant_hombres">CANTIDAD HOMBRES:</label>
+            <input type="number" id="cant_hombres" name="cant_hombres" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="cant_mujeres">CANTIDAD MUJERES:</label>
+            <input type="number" id="cant_mujeres" name="cant_mujeres" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="total_armas">TOTAL ARMAS:</label>
+            <input type="number" id="total_armas" name="total_armas" min="0">
+        </div>
+        
+        <div class="campo">
+            <label for="ametralladora">AMETRALLADORA:</label>
+            <input type="number" id="ametralladora" name="ametralladora" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="bazuca">BAZUCA:</label>
+            <input type="number" id="bazuca" name="bazuca" min="0">
+        </div>
+        
+        <div class="campo">
+            <label for="cañon">CAÑON:</label>
+            <input type="number" id="cañon" name="cañon" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="carabina">CARABINA:</label>
+            <input type="number" id="carabina" name="carabina" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="cartuchera">CARTUCHERA:</label>
+            <input type="number" id="cartuchera" name="cartuchera" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="escopeta">ESCOPETA:</label>
+            <input type="number" id="escopeta" name="escopeta" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="fusil">FUSIL:</label>
+            <input type="number" id="fusil" name="fusil" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="lanza_granada">LANZA GRANADA:</label>
+            <input type="number" id="lanza_granada" name="lanza_granada" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="mortero">MORTERO:</label>
+            <input type="number" id="mortero" name="mortero" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="pistola">PISTOLA:</label>
+            <input type="number" id="pistola" name="pistola" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="pistolon">PISTOLON:</label>
+            <input type="number" id="pistolon" name="pistolon" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="repetidora">REPETIDORA:</label>
+            <input type="number" id="repetidora" name="repetidora" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="revolver">REVOLVER:</label>
+            <input type="number" id="revolver" name="revolver" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="rifle">RIFLE:</label>
+            <input type="number" id="rifle" name="rifle" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="subametralladora">SUBAMETRALLADORA:</label>
+            <input type="number" id="subametralladora" name="subametralladora" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="otras_armas">OTRAS ARMAS DE FUEGO:</label>
+            <input type="number" id="otras_armas" name="otras_armas" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="auditorias_seguridad">AUDITORIAS DE SEGURIDAD:</label>
+            <input type="text" id="auditorias_seguridad" name="auditorias_seguridad">
+        </div>
+
+        <div class="campo">
+            <label for="autopartes">AUTOPARTES Y AUTOPARTES DE VEHICULOS:</label>
+            <input type="text" id="autopartes" name="autopartes">
+        </div>
+
+        <div class="campo">
+            <label for="bienes_inmuebles">BIENES INMUEBLES INCAUTADOS:</label>
+            <input type="number" id="bienes_inmuebles" name="bienes_inmuebles" min="0">
+        </div>
+        
+        <div class="campo">
+            <label for="personas_desaparecidas">CANTIDAD PERSONAS DESAPARECIDAS LOCALIZADAS:</label>
+            <input type="number" id="personas_desaparecidas" name="personas_desaparecidas" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="cap_detonantes">CAP_DETONANTES (UND):</label>
+            <input type="number" id="cap_detonantes" name="cap_detonantes" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="celulares">CELULARES (UND):</label>
+            <input type="number" id="celulares" name="celulares" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="certificado_armas">CERTIFICADO DE ARMAS ENTREGADO:</label>
+            <input type="text" id="certificado_armas" name="certificado_armas">
+        </div>
+
+        <div class="campo">
+            <label for="cloruro_calcio">CLORURO DE CALCIO (KG):</label>
+            <input type="number" step="0.01" id="cloruro_calcio" name="cloruro_calcio" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="coincidencias_vainas">COINCIDENCIAS POTENCIALES DE VAINAS:</label>
+            <input type="text" id="coincidencias_vainas" name="coincidencias_vainas">
+        </div>
+
+        <div class="campo">
+            <label for="coordinacion_upc">COORDINACION CON UPC:</label>
+            <input type="text" id="coordinacion_upc" name="coordinacion_upc">
+        </div>
+
+        <div class="campo">
+            <label for="total_combustibles">TOTAL COMBUSTIBLES (GL):</label>
+            <input type="number" step="0.01" id="total_combustibles" name="total_combustibles" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="diesel">DIESEL (GL):</label>
+            <input type="number" step="0.01" id="diesel" name="diesel" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="gasolina">GASOLINA (GL):</label>
+            <input type="number" step="0.01" id="gasolina" name="gasolina" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="gasolina_pesca">GASOLINA DE PESCA (GL):</label>
+            <input type="number" step="0.01" id="gasolina_pesca" name="gasolina_pesca" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="coordinaciones_realizadas">COORDINACIONES REALIZADAS:</label>
+            <input type="text" id="coordinaciones_realizadas" name="coordinaciones_realizadas">
+        </div>
+
+        <div class="campo">
+            <label for="deposito_dinero_real">DEPOSITO DE DINERO REAL:</label>
+            <input type="text" id="deposito_dinero_real" name="deposito_dinero_real">
+        </div>
+
+        <div class="campo">
+            <label for="destiladores">DESTILADORES:</label>
+            <input type="number" id="destiladores" name="destiladores" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="destruccion_dinero_falso">DESTRUCCION DE DINERO FALSO:</label>
+            <input type="text" id="destruccion_dinero_falso" name="destruccion_dinero_falso">
+        </div>
+
+        <div class="campo">
+            <label for="dinero_cuentas">DINERO EN CUENTAS BANCARIAS ($):</label>
+            <input type="number" step="0.01" id="dinero_cuentas" name="dinero_cuentas" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="disposicion_armas">DISPOSICION FINAL DE ARMAS DE FUEGO:</label>
+            <input type="text" id="disposicion_armas" name="disposicion_armas">
+        </div>
+
+        <div class="campo">
+            <label for="disposicion_automotores">DISPOSICION FINAL DE AUTOMOTORES:</label>
+            <input type="text" id="disposicion_automotores" name="disposicion_automotores">
+        </div>
+
+        <div class="campo">
+            <label for="disposicion_bienes">DISPOSICION FINAL DE BIENES MUEBLES E INMUEBLES:</label>
+            <input type="text" id="disposicion_bienes" name="disposicion_bienes">
+        </div>
+
+        <div class="campo">
+            <label for="disposicion_municiones">DISPOSICION FINAL DE MUNICIONES:</label>
+            <input type="text" id="disposicion_municiones" name="disposicion_municiones">
+        </div>
+
+        <div class="campo">
+            <label for="dolares_americanos">DOLARES AMERICANOS ($):</label>
+            <input type="number" step="0.01" id="dolares_americanos" name="dolares_americanos" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="dolares_falsos">DOLARES FALSOS ($):</label>
+            <input type="number" step="0.01" id="dolares_falsos" name="dolares_falsos" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="total_droga">TOTAL DROGA (GR):</label>
+            <input type="number" step="0.01" id="total_droga" name="total_droga" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="cocaina">COCAINA (GR):</label>
+            <input type="number" step="0.01" id="cocaina" name="cocaina" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="heroina">HEROINA (GR):</label>
+            <input type="number" step="0.01" id="heroina" name="heroina" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="marihuana">MARIHUANA (GR):</label>
+            <input type="number" step="0.01" id="marihuana" name="marihuana" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="sinteticas">SINTETICAS (GR):</label>
+            <input type="number" step="0.01" id="sinteticas" name="sinteticas" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="pasta_base">PASTA BASE DE COCAINA (GR):</label>
+            <input type="number" step="0.01" id="pasta_base" name="pasta_base" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="otras_drogas">OTRAS DROGAS (GR):</label>
+            <input type="number" step="0.01" id="otras_drogas" name="otras_drogas" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="embarcaciones">EMBARCACIONES (UND):</label>
+            <input type="number" id="embarcaciones" name="embarcaciones" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="fauna">FAUNA:</label>
+            <input type="text" id="fauna" name="fauna">
+        </div>
+
+        <div class="campo">
+            <label for="silvestre">SILVESTRE (UND):</label>
+            <input type="number" id="silvestre" name="silvestre" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="fulminantes">FULMINANTES (UND):</label>
+            <input type="number" id="fulminantes" name="fulminantes" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="glp">GLP (15 - 45 KG) (UND):</label>
+            <input type="number" id="glp" name="glp" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="granadas">GRANADAS (UND):</label>
+            <input type="number" id="granadas" name="granadas" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="porcentaje_cumplimiento">INDIQUE EL PORCENTAJE DE CUMPLIMIENTO DE LA INVESTIGACION PREVIA (%):</label>
+            <input type="number" id="porcentaje_cumplimiento" name="porcentaje_cumplimiento" min="0" max="100">
+        </div>
+
+        <div class="campo">
+            <label for="informacion_relevante">INFORMACION RELEVANTE (SMS-AUDIOS):</label>
+            <textarea id="informacion_relevante" name="informacion_relevante"></textarea>
+        </div>
+
+        <div class="campo">
+            <label for="informes_analisis">INFORMES DE ANALISIS:</label>
+            <input type="text" id="informes_analisis" name="informes_analisis">
+        </div>
+
+        <div class="campo">
+            <label for="investigaciones_aperturadas">INVESTIGACIONES PREVIAS APERTURADAS:</label>
+            <input type="number" id="investigaciones_aperturadas" name="investigaciones_aperturadas" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="laboratorio_droga">LABORATORIO_PROCESAMIENTO_DROGA:</label>
+            <input type="text" id="laboratorio_droga" name="laboratorio_droga">
+        </div>
+
+        <div class="campo">
+            <label for="madera">MADERA (M3):</label>
+            <input type="number" step="0.01" id="madera" name="madera" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="maquinaria_pesada">MAQUINARIA PESADA (UND):</label>
+            <input type="number" id="maquinaria_pesada" name="maquinaria_pesada" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="material_aurifero">MATERIAL AURIFERO (KG):</label>
+            <input type="number" step="0.01" id="material_aurifero" name="material_aurifero" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="mecha_lenta">MECHA LENTA CORDON DETONANTE (METROS):</label>
+            <input type="number" step="0.01" id="mecha_lenta" name="mecha_lenta" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="minas_detonantes">MINAS DETONANTES (UND):</label>
+            <input type="number" id="minas_detonantes" name="minas_detonantes" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="motores_borda">MOTORES F. BORDA (UND):</label>
+            <input type="number" id="motores_borda" name="motores_borda" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="municiones">MUNICIONES (UND):</label>
+            <input type="number" id="municiones" name="municiones" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="nna_rescatados">NIÑOS, NIÑAS Y ADOLESCENTES RESCATADOS:</label>
+            <input type="number" id="nna_rescatados" name="nna_rescatados" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="nitrato_amonio">NITRATO DE AMONIO (KG):</label>
+            <input type="number" step="0.01" id="nitrato_amonio" name="nitrato_amonio" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="num_investigacion_previa">NUMERO DE LA INVESTIGACION PREVIA APERTURADA:</label>
+            <input type="text" id="num_investigacion_previa" name="num_investigacion_previa">
+        </div>
+
+        <div class="campo">
+            <label for="operativos_traslado">OPERATIVOS DE TRASLADO:</label>
+            <input type="text" id="operativos_traslado" name="operativos_traslado">
+        </div>
+
+        <div class="campo">
+            <label for="ordenes_analisis">ORDENES JUDICIALES DE ANALISIS TELEFONICO CUMPLIDAS:</label>
+            <input type="number" id="ordenes_analisis" name="ordenes_analisis" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="patrimonio_cultural">PATRIMONIO CULTURAL (UND):</label>
+            <input type="number" id="patrimonio_cultural" name="patrimonio_cultural" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="pentolita">PENTOLITA (KG):</label>
+            <input type="number" step="0.01" id="pentolita" name="pentolita" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="perdigones">PERDIGONES (UND):</label>
+            <input type="number" id="perdigones" name="perdigones" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="perforaciones">PERFORACIONES:</label>
+            <input type="text" id="perforaciones" name="perforaciones">
+        </div>
+
+        <div class="campo">
+            <label for="pericias_accidentologia">PERICIAS ACCIDENTOLOGIA VIAL:</label>
+            <input type="text" id="pericias_accidentologia" name="pericias_accidentologia">
+        </div>
+
+        <div class="campo">
+            <label for="pericias_criminalistica">PERICIAS CRIMINALISTICA:</label>
+            <input type="text" id="pericias_criminalistica" name="pericias_criminalistica">
+        </div>
+
+        <div class="campo">
+            <label for="pericias_medicina_legal">PERICIAS MEDICINA LEGAL:</label>
+            <input type="text" id="pericias_medicina_legal" name="pericias_medicina_legal">
+        </div>
+
+        <div class="campo">
+            <label for="personas_protegidas">PERSONAS PROTEGIDAS:</label>
+            <input type="number" id="personas_protegidas" name="personas_protegidas" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="pirotecnia">PIROTECNIA (UND):</label>
+            <input type="number" id="pirotecnia" name="pirotecnia" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="piscinas_artesanales">PISCINAS ARTESANALES DE CLDH:</label>
+            <input type="text" id="piscinas_artesanales" name="piscinas_artesanales">
+        </div>
+
+        <div class="campo">
+            <label for="polvora">POLVORA (KG):</label>
+            <input type="number" step="0.01" id="polvora" name="polvora" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="productos_agricolas">PRODUCTOS AGRICOLAS (BULTOS):</label>
+            <input type="number" id="productos_agricolas" name="productos_agricolas" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="quimicos_liquidos">QUIMICOS LIQUIDOS (LT):</label>
+            <input type="number" step="0.01" id="quimicos_liquidos" name="quimicos_liquidos" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="quimicos_solidos">QUIMICOS SOLIDOS (KG):</label>
+            <input type="number" step="0.01" id="quimicos_solidos" name="quimicos_solidos" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="registro_cautelares">REGISTRO DE MEDIDAS CAUTELARES:</label>
+            <input type="text" id="registro_cautelares" name="registro_cautelares">
+        </div>
+
+        <div class="campo">
+            <label for="reportes_telefonicos">REPORTES TELEFONICOS ENTREGADOS:</label>
+            <input type="number" id="reportes_telefonicos" name="reportes_telefonicos" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="semovientes">SEMOVIENTES (UND):</label>
+            <input type="number" id="semovientes" name="semovientes" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="subzonas_intervenidas">SUBZONAS INTERVENIDAS:</label>
+            <input type="text" id="subzonas_intervenidas" name="subzonas_intervenidas">
+        </div>
+
+        <div class="campo">
+            <label for="tacos_dinamita">TACOS DE DINAMITA (UND):</label>
+            <input type="number" id="tacos_dinamita" name="tacos_dinamita" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="traslado_indicios">TRASLADO DE INDICIOS BAJO PEDIDO DE AUTORIDAD COMPETENTE:</label>
+            <input type="text" id="traslado_indicios" name="traslado_indicios">
+        </div>
+
+        <div class="campo">
+            <label for="valor_bienes_inmuebles">VALOR DE LOS BIENES INMUEBLES INCAUTADOS:</label>
+            <input type="number" step="0.01" id="valor_bienes_inmuebles" name="valor_bienes_inmuebles" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="total_vehiculos">TOTAL VEHÍCULOS:</label>
+            <input type="number" id="total_vehiculos" name="total_vehiculos" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="carros_aprehendidos">CARROS APREHENDIDOS:</label>
+            <input type="number" id="carros_aprehendidos" name="carros_aprehendidos" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="carros_recuperados">CARROS RECUPERADOS:</label>
+            <input type="number" id="carros_recuperados" name="carros_recuperados" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="motos_aprehendidas">MOTOS APREHENDIDAS:</label>
+            <input type="number" id="motos_aprehendidas" name="motos_aprehendidas" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="motos_recuperadas">MOTOS RECUPERADAS:</label>
+            <input type="number" id="motos_recuperadas" name="motos_recuperadas" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="victimas_liberadas">VICTIMAS LIBERADAS:</label>
+            <input type="number" id="victimas_liberadas" name="victimas_liberadas" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="victimas_rescatadas">VÍCTIMAS RESCATADAS:</label>
+            <input type="number" id="victimas_rescatadas" name="victimas_rescatadas" min="0">
+        </div>
+
+        <div class="campo">
+            <label for="varios">VARIOS:</label>
+            <input type="text" id="varios" name="varios">
+        </div>
+
+        <div class="campo">
+            <label for="mas_indicadores">DESEA INGRESAR MÁS INDICADORES?:</label>
+            <select id="mas_indicadores" name="mas_indicadores">
+                <option value="si">Sí</option>
+                <option value="no" selected>No</option>
+            </select>
+        </div>
+
+        <div class="campo">
+            <label for="cedula">NÚMERO DE CÉDULA:</label>
+            <input type="text" id="cedula" name="cedula">
+        </div>
+
+        <div class="campo">
+            <label for="grado">GRADO:</label>
+            <input type="text" id="grado" name="grado">
+        </div>
+
+        <div class="campo">
+            <label for="apellidos_nombres">APELLIDOS Y NOMBRES:</label>
+            <input type="text" id="apellidos_nombres" name="apellidos_nombres">
+        </div>
+
+        <div class="campo">
+            <label for="celular">CELULAR:</label>
+            <input type="tel" id="celular" name="celular">
+        </div>
+
+        <div class="campo">
+            <label for="correo_electronico">CORREO ELECTRONICO:</label>
+            <input type="email" id="correo_electronico" name="correo_electronico">
+        </div>
+
+        <div class="campo">
+            <label for="archivo_powerpoint">SELECCIONAR ARCHIVO POWERPOINT:</label>
+            <input type="file" id="archivo_powerpoint" name="archivo_powerpoint" accept=".ppt,.pptx">
+        </div>
+        
+        <button type="submit" class="submit-button">Guardar Registro de Operativo</button>
+        
+    </form>
+
+</body>
+</html>
