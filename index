@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario Operativo Exhaustivo (Google Sheets)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .readonly-total-field {
+            background-color: #f3f4f6; /* Gris claro para indicar que es calculado */
+            font-weight: bold;
+        }
+        .auto-filled-field {
+            background-color: #eef2ff; /* Azul muy claro para indicar autocompletado */
+        }
+        .indicator-input {
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-xl">
+        <h1 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">Registro Exhaustivo de Operativo Policial</h1>
+
+        <form id="operativoForm" onsubmit="submitForm(event)">
+            
+            <fieldset class="space-y-4 border border-gray-200 p-4 rounded-md mb-6">
+                <legend class="text-lg font-semibold text-gray-800 px-2">Datos del Operativo y Ubicación</legend>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="fecha_operativo" class="block text-sm font-medium text-gray-700">FECHA DEL OPERATIVO</label>
+                        <input type="date" id="fecha_operativo" name="FECHA DEL OPERATIVO" required class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2">
+                    </div>
+                    <div>
+                        <label for="hora_operativo" class="block text-sm font-medium text-gray-700">HORA DEL OPERATIVO</label>
+                        <input type="time" id="hora_operativo" name="HORA DEL OPERATIVO" required class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="direccion_interventora" class="block text-sm font-medium text-gray-700">DIRECCIÓN INTERVENTORA</label>
+                    <input type="text" id="direccion_interventora" name="DIRECCIÓN INTERVENTORA" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="unidad_interventora" class="block text-sm font-medium text-gray-700">UNIDAD INTERVENTORA</label>
+                    <input type="text" id="unidad_interventora" name="UNIDAD INTERVENTORA" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="codigo_subcircuito" class="block text-sm font-medium text-gray-700">CÓDIGO DE SUBCIRCUITO</label>
+                    <input type="text" id="codigo_subcircuito" name="CÓDIGO DE SUBCIRCUITO" oninput="searchSubcircuitoDetails(this.value)" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2" placeholder="Ej: 01D01C13S01">
+                    <p id="subcircuito_status" class="text-xs text-red-500 mt-1 hidden">Código de Subcircuito no encontrado.</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="zona" class="block text-sm font-medium text-gray-700">ZONA</label>
+                        <input type="text" id="zona" name="ZONA" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 auto-filled-field" readonly>
+                    </div>
+                    <div>
+                        <label for="subzona" class="block text-sm font-medium text-gray-700">SUBZONA</label>
+                        <input type="text" id="subzona" name="SUBZONA" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 auto-filled-field" readonly>
+                    </div>
+                    <div>
+                        <label for="distrito" class="block text-sm font-medium text-gray-700">DISTRITO</label>
+                        <input type="text" id="distrito" name="DISTRITO" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 auto-filled-field" readonly>
+                    </div>
+                    <div>
+                        <label for="circuito" class="block text-sm font-medium text-gray-700">CIRCUITO</label>
+                        <input type="text" id="circuito" name="CIRCUITO" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 auto-filled-field" readonly>
+                    </div>
+                </div>
+                <div>
+                    <label for="subcircuito" class="block text-sm font-medium text-gray-700">SUBCIRCUITO</label>
+                    <input type="text" id="subcircuito" name="SUBCIRCUITO" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 auto-filled-field" readonly>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="latitud" class="block text-sm font-medium text-gray-700">LATITUD</label>
+                        <input type="text" id="latitud" name="LATITUD" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2" placeholder="Obteniendo ubicación...">
+                    </div>
+                    <div>
+                        <label for="longitud" class="block text-sm font-medium text-gray-700">LONGITUD</label>
+                        <input type="text" id="longitud" name="LONGITUD" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2" placeholder="Obteniendo ubicación...">
+                    </div>
+                </div>
+                <div>
+                    <label for="direccion" class="block text-sm font-medium text-gray-700">DIRECCIÓN</label>
+                    <textarea id="direccion" name="DIRECCIÓN" rows="2" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 auto-filled-field"></textarea>
+                </div>
+            </fieldset>
+
+            <fieldset class="space-y-4 border border-gray-200 p-4 rounded-md mb-6">
+                <legend class="text-lg font-semibold text-gray-800 px-2">Detalles del Caso</legend>
+                
+                <div>
+                    <label for="presunto_delito" class="block text-sm font-medium text-gray-700">PRESUNTO DELITO</label>
+                    <input type="text" id="presunto_delito" name="PRESUNTO DELITO" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="extracto_caso" class="block text-sm font-medium text-gray-700">EXTRACTO DEL CASO</label>
+                    <textarea id="extracto_caso" name="EXTRACTO DEL CASO" rows="3" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2"></textarea>
+                </div>
+                <div>
+                    <label for="tipo_ejecucion" class="block text-sm font-medium text-gray-700">TIPO DE EJECUCIÓN DE LA OPERACIÓN</label>
+                    <input type="text" id="tipo_ejecucion" name="TIPO DE EJECUCIÓN DE LA OPERACIÓN" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="tipo_coordinacion" class="block text-sm font-medium text-gray-700">TIPO DE COORDINACIÓN</label>
+                    <input type="text" id="tipo_coordinacion" name="TIPO DE COORDINACIÓN" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2">
+                </div>
+                <div>
+                    <label for="caracterizacion_aprehendido" class="block text-sm font-medium text-gray-700">CARACTERIZACIÓN DEL APREHENDIDO/DETENIDO</label>
+                    <textarea id="caracterizacion_aprehendido" name="CARACTERIZACIÓN DEL APREHENDIDO/DETENIDO" rows="2" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2"></textarea>
+                </div>
+            </fieldset>
+            
+            <fieldset class="space-y-4 border border-gray-200 p-4 rounded-md mb-6">
+                <legend class="text-lg font-semibold text-gray-800 px-2">Datos del Personal Interviniente Principal</legend>
+
+                <div>
+                    <label for="numero_cedula" class="block text-sm font-medium text-gray-700">NÚMERO DE CÉDULA</label>
+                    <input type="text" id="numero_cedula" name="NÚMERO DE CÉDULA" oninput="searchOfficerDetails(this.value)" maxlength="10" pattern="\d{10}" title="Debe contener 10 dígitos numéricos" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2" placeholder="Ingrese Cédula (Ej: 1710557511)">
+                    <p id="cedula_status" class="text-xs text-red-500 mt-1 hidden">Cédula no válida o no encontrada.</p>
+                </div>
+                <div>
+                    <label for="grado" class="block text-sm font-medium text-gray-700">GRADO</label>
+                    <input type="text" id="grado" name="GRADO" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 auto-filled-field" placeholder="Automático..." readonly>
+                </div>
+                <div>
+                    <label for="apellidos_nombres" class="block text-sm font-medium text-gray-700">APELLIDOS Y NOMBRES</label>
+                    <input type="text" id="apellidos_nombres" name="APELLIDOS Y NOMBRES" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 auto-filled-field" placeholder="Automático..." readonly>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="celular" class="block text-sm font-medium text-gray-700">CELULAR</label>
+                        <input type="tel" id="celular" name="CELULAR" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 auto-filled-field" placeholder="Automático..." readonly>
+                    </div>
+                    <div>
+                        <label for="correo_electronico" class="block text-sm font-medium text-gray-700">CORREO ELECTRONICO</label>
+                        <input type="email" id="correo_electronico" name="CORREO ELECTRONICO" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 auto-filled-field" placeholder="Automático..." readonly>
+                    </div>
+                </div>
+            </fieldset>
+
+
+            <fieldset class="space-y-4 border border-indigo-500 p-4 rounded-md mb-6 bg-indigo-50">
+                <legend class="text-lg font-semibold text-indigo-700 px-2">Productividad e Indicadores</legend>
+                
+                <h4 class="text-md font-semibold text-indigo-700 mt-4 border-b pb-1">Detalle de Detenidos</h4>
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label for="total_detenidos" class="block text-sm font-medium text-gray-700">TOTAL DETENIDOS</label>
+                        <input type="number" step="1" min="0" id="total_detenidos" name="TOTAL DETENIDOS" oninput="calculateTotalDetenidos()" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 readonly-total-field" readonly>
+                    </div>
+                    <div>
+                        <label for="cantidad_aprehendidos" class="block text-sm font-medium text-gray-700">CANTIDAD APREHENDIDOS</label>
+                        <input type="number" step="1" min="0" id="cantidad_aprehendidos" name="CANTIDAD APREHENDIDOS" oninput="calculateTotalDetenidos()" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2">
+                    </div>
+                    <div>
+                        <label for="cantidad_detenidos" class="block text-sm font-medium text-gray-700">CANTIDAD DETENIDOS</label>
+                        <input type="number" step="1" min="0" id="cantidad_detenidos" name="CANTIDAD DETENIDOS" oninput="calculateTotalDetenidos()" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                     <div>
+                        <label for="cantidad_hombres" class="block text-sm font-medium text-gray-700">CANTIDAD HOMBRES</label>
+                        <input type="number" step="1" min="0" id="cantidad_hombres" name="CANTIDAD HOMBRES" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2">
+                    </div>
+                    <div>
+                        <label for="cantidad_mujeres" class="block text-sm font-medium text-gray-700">CANTIDAD MUJERES</label>
+                        <input type="number" step="1" min="0" id="cantidad_mujeres" name="CANTIDAD MUJERES" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2">
+                    </div>
+                </div>
+
+
+                <div id="armas_details" class="p-3 border border-dashed border-indigo-300 rounded-md bg-white mt-6">
+                    <h4 class="text-md font-semibold text-indigo-700 mb-3 border-b pb-1">Desglose de Armas</h4>
+                    <div id="fixed-armas-inputs" class="grid grid-cols-4 gap-4">
+                        </div>
+                    <div class="mt-4 pt-3 border-t border-indigo-200">
+                        <label for="TOTAL ARMAS" class="block text-sm font-bold text-indigo-700">TOTAL ARMAS (TOTAL)</label>
+                        <input type="text" id="TOTAL ARMAS" name="TOTAL ARMAS" value="0" readonly 
+                            class="mt-1 block w-full rounded-md border border-indigo-500 shadow-sm p-2 text-base readonly-total-field">
+                    </div>
+                </div>
+
+                <div id="combustibles_details" class="p-3 border border-dashed border-indigo-300 rounded-md bg-white mt-6">
+                    <h4 class="text-md font-semibold text-indigo-700 mb-3 border-b pb-1">Desglose de Combustibles</h4>
+                    <div id="fixed-combustible-inputs" class="grid grid-cols-3 gap-4">
+                        </div>
+                    <div class="mt-4 pt-3 border-t border-indigo-200">
+                        <label for="TOTAL COMBUSTIBLES (GL)" class="block text-sm font-bold text-indigo-700">TOTAL COMBUSTIBLES (GL) (TOTAL)</label>
+                        <input type="text" id="TOTAL COMBUSTIBLES (GL)" name="TOTAL COMBUSTIBLES (GL)" value="0" readonly 
+                            class="mt-1 block w-full rounded-md border border-indigo-500 shadow-sm p-2 text-base readonly-total-field">
+                    </div>
+                </div>
+
+                <div id="drogas_details" class="p-3 border border-dashed border-indigo-300 rounded-md bg-white mt-6">
+                    <h4 class="text-md font-semibold text-indigo-700 mb-3 border-b pb-1">Desglose de Drogas</h4>
+                    <div id="fixed-drogas-inputs" class="grid grid-cols-3 gap-4">
+                        </div>
+                    <div class="mt-4 pt-3 border-t border-indigo-200">
+                        <label for="TOTAL DROGA (GR)" class="block text-sm font-bold text-indigo-700">TOTAL DROGA (GR) (TOTAL)</label>
+                        <input type="text" id="TOTAL DROGA (GR)" name="TOTAL DROGA (GR)" value="0" readonly 
+                            class="mt-1 block w-full rounded-md border border-indigo-500 shadow-sm p-2 text-base readonly-total-field">
+                    </div>
+                </div>
+
+                <h4 class="text-md font-semibold text-indigo-700 mt-6 border-b pb-1">Otros Indicadores (Llene solo los que apliquen)</h4>
+                <div id="all-fixed-indicators" class="grid grid-cols-3 gap-4">
+                    </div>
+            </fieldset>
+
+            <fieldset class="space-y-4 border border-gray-200 p-4 rounded-md mb-6">
+                <legend class="text-lg font-semibold text-gray-800 px-2">Archivo y Control</legend>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" id="more_indicators_check" name="DESEA INGRESAR MÁS INDICADORES?" onchange="togglePowerPointField()" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    <label for="more_indicators_check" class="ml-2 block text-sm font-medium text-gray-700">DESEA INGRESAR MÁS INDICADORES?</label>
+                </div>
+
+                <div id="powerpoint_field_container" class="hidden mt-4">
+                    <label for="archivo_powerpoint" class="block text-sm font-medium text-gray-700">SELECCIONAR ARCHIVO POWERPOINT</label>
+                    <input type="file" id="archivo_powerpoint" name="archivo_powerpoint" accept=".ppt,.pptx" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                </div>
+            </fieldset>
+
+
+            <div class="mt-8">
+                <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Registrar Operativo y Todos los Detalles
+                </button>
+            </div>
+            <div id="form-output" class="mt-4 p-4 bg-green-100 text-green-800 rounded hidden"></div>
+        </form>
+    </div>
+
+    <script>
+        // --- DATA DE REFERENCIA CARGADA DESDE CSV (Para Autocompletado, reemplazar con datos reales) ---
+        const officerData = [{"CEDULA": "1710557511", "GRADO": "GRAD.", "APELLIDOS NOMBRES": "HERRERA LEIVA VICTOR SANTIAGO", "CELULAR": "982654751", "CORREO ELECTRONICO": "sindato@gmail.com"}];
+        const subcircuitoData = [{"codigo": "01D01C13S01", "zona": "ZONA 6", "subzona": "AZUAY", "distrito": "CUENCA NORTE", "circuito": "GIL RAMIREZ DAVALOS", "subcircuito": "GIL RAMIREZ DAVALOS 1"}];
+
+        // --- DEFINICIÓN DE ARRAYS CLAVE ---
+        const ARMAS_DETALLE = ["AMETRALLADORA", "BAZUCA", "CAÑON", "CARABINA", "CARTUCHERA", "ESCOPETA", "FUSIL", "LANZA GRANADA", "MORTERO", "PISTOLA", "PISTOLON", "REPETIDORA", "REVOLVER", "RIFLE", "SUBAMETRALLADORA", "OTRAS ARMAS DE FUEGO"];
+        const COMBUSTIBLES_DETALLE = ["DIESEL (GL)", "GASOLINA (GL)", "GASOLINA DE PESCA (GL)"];
+        const DROGAS_DETALLE = ["COCAINA (GR)", "HEROINA (GR)", "MARIHUANA (GR)", "SINTETICAS (GR)", "PASTA BASE DE COCAINA (GR)", "OTRAS DROGAS (GR)"];
+        
+        // Lista completa de indicadores. 
+        const PRODUCTIVITY_INDICATORS = [
+            "AERONAVES (UND)", "ALLANAMIENTOS", "AUDITORIAS DE SEGURIDAD", "AUTOPARTES Y AUTOPARTES DE VEHICULOS", 
+            "BIENES INMUEBLES INCAUTADOS", "CANTIDAD PERSONAS DESAPARECIDAS LOCALIZADAS", "CAP_DETONANTES (UND)", 
+            "CELULARES (UND)", "CERTIFICADO DE ARMAS ENTREGADO", "CLORURO DE CALCIO (KG)", 
+            "COINCIDENCIAS POTENCIALES DE VAINAS", "COORDINACION CON UPC", "COORDINACIONES REALIZADAS", 
+            "DEPOSITO DE DINERO REAL", "DESTILADORES", "DESTRUCCION DE DINERO FALSO", "DINERO EN CUENTAS BANCARIAS ($)", 
+            "DISPOSICION FINAL DE ARMAS DE FUEGO", "DISPOSICION FINAL DE AUTOMOTORES", 
+            "DISPOSICION FINAL DE BIENES MUEBLES E INMUEBLES", "DISPOSICION FINAL DE MUNICIONES", 
+            "DOLARES AMERICANOS ($)", "DOLARES FALSOS ($)", "EMBARCACIONES (UND)", "FAUNA SILVESTRE (UND)", 
+            "FULMINANTES (UND)", "GLP (15 - 45 KG) (UND)", "GRANADAS (UND)", 
+            "INDIQUE EL PORCENTAJE DE CUMPLIMIENTO DE LA INVESTIGACION PREVIA (%)", 
+            "INFORMACION RELEVANTE (SMS-AUDIOS)", "INFORMES DE ANALISIS", "INVESTIGACIONES PREVIAS APERTURADAS", 
+            "LABORATORIO_PROCESAMIENTO_DROGA", "MADERA (M3)", "MAQUINARIA PESADA (UND)", "MATERIAL AURIFERO (KG)", 
+            "MECHA LENTA CORDON DETONANTE (METROS)", "MINAS DETONANTES (UND)", "MOTORES F. BORDA (UND)", 
+            "MUNICIONES (UND)", "NIÑOS, NIÑAS Y ADOLESCENTES RESCATADOS", "NITRATO DE AMONIO (KG)", 
+            "NUMERO DE LA INVESTIGACION PREVIA APERTURADA", "OPERATIVOS DE TRASLADO", 
+            "ORDENES JUDICIALES DE ANALISIS TELEFONICO CUMPLIDAS", "PATRIMONIO CULTURAL (UND)", "PENTOLITA (KG)", 
+            "PERDIGONES (UND)", "PERFORACIONES", "PERICIAS ACCIDENTOLOGIA VIAL", "PERICIAS CRIMINALISTICA", 
+            "PERICIAS MEDICINA LEGAL", "PERSONAS PROTEGIDAS", "PIROTECNIA (UND)", "PISCINAS ARTESANALES DE CLDH", 
+            "POLVORA (KG)", "PRODUCTOS AGRICOLAS (BULTOS)", "QUIMICOS LIQUIDOS (LT)", "QUIMICOS SOLIDOS (KG)", 
+            "REGISTRO DE MEDIDAS CAUTELARES", "REPORTES TELEFONICOS ENTREGADOS", "SEMOVIENTES (UND)", 
+            "TACOS DE DINAMITA (UND)", "TOTAL ARMAS", "TOTAL COMBUSTIBLES (GL)", "TOTAL DROGA (GR)", 
+            "TOTAL VEHÍCULOS", "TRASLADO DE INDICIOS BAJO PEDIDO DE AUTORIDAD COMPETENTE", 
+            "VALOR DE LOS BIENES INMUEBLES INCAUTADOS", "VICTIMAS LIBERADAS", "VÍCTIMAS RESCATADAS", "VARIOS"
+        ];
+
+        // Indicadores que son calculados (los totales) o campos de detalle explícitos (los detalles de armas/comb/drogas)
+        const EXPLICIT_FIELDS = ["TOTAL ARMAS", "TOTAL COMBUSTIBLES (GL)", "TOTAL DROGA (GR)", ...ARMAS_DETALLE, ...COMBUSTIBLES_DETALLE, ...DROGAS_DETALLE];
+
+        // Los indicadores que van como INPUTS FIJOS (el resto)
+        const FIXED_INDICATORS = PRODUCTIVITY_INDICATORS.filter(ind => !EXPLICIT_FIELDS.includes(ind));
+
+
+        // --- Funciones de Utilidad (Abreviadas por espacio) ---
+
+        // Función mock para obtener geolocalización
+        function getGeolocation() {
+            document.getElementById('latitud').value = '';
+            document.getElementById('longitud').value = '';
+            document.getElementById('direccion').value = 'Buscando dirección...';
+            // Simulación de geolocalización
+            setTimeout(() => {
+                const mockLat = '-0.22985';
+                const mockLon = '-78.52495';
+                document.getElementById('latitud').value = mockLat;
+                document.getElementById('longitud').value = mockLon;
+                reverseGeocode(mockLat, mockLon);
+            }, 500);
+        }
+        
+        // Función mock para geocodificación inversa
+        async function reverseGeocode(lat, lon) {
+             // Simulación de respuesta de dirección
+             document.getElementById('direccion').value = 'Av. 10 de Agosto y Av. Orellana, Quito';
+        }
+
+        // Función mock para buscar detalles de policía
+        function searchOfficerDetails(cedula) {
+            const status = document.getElementById('cedula_status');
+            const data = officerData.find(o => o.CEDULA === cedula);
+            
+            if (cedula.length !== 10 || !/^\d+$/.test(cedula)) {
+                 document.getElementById('grado').value = '';
+                 document.getElementById('apellidos_nombres').value = '';
+                 document.getElementById('celular').value = '';
+                 document.getElementById('correo_electronico').value = '';
+                 status.classList.add('hidden');
+                 return;
+            }
+
+            if (data) {
+                document.getElementById('grado').value = data["GRADO"];
+                document.getElementById('apellidos_nombres').value = data["APELLIDOS NOMBRES"];
+                document.getElementById('celular').value = data["CELULAR"];
+                document.getElementById('correo_electronico').value = data["CORREO ELECTRONICO"];
+                status.classList.add('hidden');
+            } else {
+                document.getElementById('grado').value = '';
+                document.getElementById('apellidos_nombres').value = '';
+                document.getElementById('celular').value = '';
+                document.getElementById('correo_electronico').value = '';
+                status.textContent = 'Cédula no encontrada en la base de datos de ejemplo.';
+                status.classList.remove('hidden');
+            }
+        }
+        
+        // Función mock para buscar detalles de subcircuito
+        function searchSubcircuitoDetails(codigo) {
+            const status = document.getElementById('subcircuito_status');
+            const data = subcircuitoData.find(s => s.codigo === codigo);
+
+            if (data) {
+                document.getElementById('zona').value = data.zona;
+                document.getElementById('subzona').value = data.subzona;
+                document.getElementById('distrito').value = data.distrito;
+                document.getElementById('circuito').value = data.circuito;
+                document.getElementById('subcircuito').value = data.subcircuito;
+                status.classList.add('hidden');
+            } else {
+                document.getElementById('zona').value = '';
+                document.getElementById('subzona').value = '';
+                document.getElementById('distrito').value = '';
+                document.getElementById('circuito').value = '';
+                document.getElementById('subcircuito').value = '';
+                if (codigo.length > 0) {
+                     status.textContent = 'Código de Subcircuito no encontrado en la base de datos de ejemplo.';
+                     status.classList.remove('hidden');
+                } else {
+                    status.classList.add('hidden');
+                }
+            }
+        }
+        
+        function getNumberValue(id) {
+            const el = document.getElementById(id);
+            const val = el ? el.value : ''; 
+            // Reemplaza comas por puntos para que funcione con input type="number" y parseFloat
+            const cleanedVal = val.replace(/,/g, '.'); 
+            return !isNaN(parseFloat(cleanedVal)) && cleanedVal !== '' ? parseFloat(cleanedVal) : 0;
+        }
+
+
+        // --- Funciones de Cálculo de Totales ---
+
+        function calculateTotalDetenidos() {
+            const aprehendidos = getNumberValue('cantidad_aprehendidos');
+            const detenidos = getNumberValue('cantidad_detenidos');
+            const totalField = document.getElementById('total_detenidos');
+            if (totalField) totalField.value = (aprehendidos + detenidos).toFixed(0);
+        }
+
+        function calculateTotalArmas() {
+            let sum = ARMAS_DETALLE.reduce((acc, arma) => acc + getNumberValue(arma), 0);
+            const totalField = document.getElementById('TOTAL ARMAS');
+            if (totalField) totalField.value = sum.toFixed(0);
+        }
+
+        function calculateTotalCombustibles() {
+            let sum = COMBUSTIBLES_DETALLE.reduce((acc, comb) => acc + getNumberValue(comb), 0);
+            const totalField = document.getElementById('TOTAL COMBUSTIBLES (GL)');
+            if (totalField) totalField.value = sum.toFixed(2);
+        }
+
+        function calculateTotalDrogas() {
+            let sum = DROGAS_DETALLE.reduce((acc, droga) => acc + getNumberValue(droga), 0);
+            const totalField = document.getElementById('TOTAL DROGA (GR)');
+            if (totalField) totalField.value = sum.toFixed(3);
+        }
+
+        // --- Lógica de Componentes Fijos (Armas, Combustible, Drogas, Otros) ---
+
+        function generateInputFields(containerId, detailsArray, calculationFunction) {
+            const container = document.getElementById(containerId);
+            let html = '';
+
+            detailsArray.forEach(detail => {
+                const inputId = detail; // ID y NAME son el nombre exacto de la cabecera
+                
+                // Extraer unidad si existe para la etiqueta
+                const match = detail.match(/\(([^)]+)\)$/);
+                const unit = match ? match[1] : ''; 
+                const cleanLabel = detail.replace(/\([^)]+\)$/, '').trim();
+
+                html += `
+                    <div>
+                        <label for="${inputId}" class="block text-xs font-medium text-gray-600">${cleanLabel} ${unit ? `(${unit})` : ''}</label>
+                        <input type="number" step="any" min="0" id="${inputId}" name="${inputId}" 
+                            class="indicator-input block w-full rounded-md border border-gray-300 shadow-sm p-1.5 text-sm" 
+                            oninput="${calculationFunction ? calculationFunction + '()' : ''}">
+                    </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // --- Inicialización del Formulario ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar fecha/hora y geolocalización
+            const now = new Date();
+            const currentDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            document.getElementById('fecha_operativo').value = currentDate;
+            document.getElementById('hora_operativo').value = currentTime;
+            getGeolocation();
+
+            // 1. Generar inputs Fijos de Desglose
+            generateInputFields('fixed-armas-inputs', ARMAS_DETALLE, 'calculateTotalArmas');
+            generateInputFields('fixed-combustible-inputs', COMBUSTIBLES_DETALLE, 'calculateTotalCombustibles');
+            generateInputFields('fixed-drogas-inputs', DROGAS_DETALLE, 'calculateTotalDrogas');
+            
+            // 2. Generar inputs Fijos de Otros Indicadores
+            generateInputFields('all-fixed-indicators', FIXED_INDICATORS, null);
+            
+            // 3. Forzar el cálculo inicial de detenidos y totales
+            calculateTotalDetenidos();
+            calculateTotalArmas();
+            calculateTotalCombustibles();
+            calculateTotalDrogas();
+        });
+
+        function togglePowerPointField() {
+            document.getElementById('powerpoint_field_container').classList.toggle('hidden');
+        }
+
+
+        // --- Función de Envío del Formulario (SIN FILTROS - Envía ABSOLUTAMENTE TODO) ---
+        function submitForm(event) {
+            event.preventDefault();
+            const form = document.getElementById('operativoForm');
+            const output = document.getElementById('form-output');
+            
+            // 🚨🚨🚨 MODIFIQUE ESTA LÍNEA 🚨🚨🚨
+            const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby1kQ_5Dw7Ct1r4fnlN7Y9V8Fyj5cUSDpHtmrYjs-2ag4NkywVZE9-gaFA6xGax0-OnUQ/exec'; 
+
+            if (WEB_APP_URL.includes('PEGUE SU URL')) {
+                 output.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
+                 output.classList.add('bg-red-100', 'text-red-800');
+                 output.textContent = '❌ ERROR: Por favor, reemplace "https://script.google.com/macros/s/AKfycby1kQ_5Dw7Ct1r4fnlN7Y9V8Fyj5cUSDpHtmrYjs-2ag4NkywVZE9-gaFA6xGax0-OnUQ/exec" con la URL de su Web App.';
+                 return;
+            }
+
+            const formData = new FormData(form);
+            let dataToSend = {};
+
+            // 1. Itera sobre TODOS los campos y los incluye, sin filtro.
+            for (let [key, value] of formData.entries()) {
+                
+                // Excluir el campo de archivo binario.
+                if (key === 'archivo_powerpoint') {
+                    continue; 
+                }
+                
+                // Se incluye ABSOLUTAMENTE todo lo demás (campos vacíos, campos llenos, etc.).
+                dataToSend[key] = value;
+            }
+
+            output.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+            output.classList.add('bg-yellow-100', 'text-yellow-800');
+            output.textContent = '⏳ Enviando TODOS los datos a Google Sheets...';
+
+
+            // 2. Enviar los datos usando fetch
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: new URLSearchParams(dataToSend),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    throw new Error(`Error en el servidor: ${response.status} ${response.statusText}`);
+                }
+            })
+            .then(text => {
+                if (text === "SUCCESS") {
+                    console.log("Datos enviados con éxito:", dataToSend);
+                    output.textContent = '✅ Operativo Policial registrado con éxito, enviando TODOS los detalles.';
+                    output.classList.remove('bg-yellow-100', 'text-yellow-800');
+                    output.classList.add('bg-green-100', 'text-green-800');
+                    form.reset(); 
+                    getGeolocation(); 
+                    
+                    // Recalcular totales después del reset para mostrar 0
+                    calculateTotalDetenidos(); 
+                    calculateTotalArmas();
+                    calculateTotalCombustibles();
+                    calculateTotalDrogas();
+                } else {
+                    throw new Error("Respuesta inesperada de Apps Script.");
+                }
+            })
+            .catch(error => {
+                console.error("Error al enviar el formulario:", error);
+                output.textContent = `❌ Error al registrar el operativo: ${error.message}`;
+                output.classList.remove('bg-yellow-100', 'text-yellow-800', 'bg-green-100', 'text-green-800');
+                output.classList.add('bg-red-100', 'text-red-800');
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    output.classList.add('hidden');
+                    output.classList.remove('bg-red-100', 'text-red-800');
+                }, 5000);
+            });
+        }
+    </script>
+</body>
+</html>
