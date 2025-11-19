@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario Operativo Exhaustivo (Google Sheets)</title>
+    <title>Formulario Operativo Exhaustivo (iFrame/Apps Script)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .readonly-total-field {
@@ -23,8 +23,17 @@
     <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-xl">
         <h1 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">Registro Exhaustivo de Operativo Policial</h1>
 
-        <form id="operativoForm" onsubmit="submitForm(event)">
+        <!-- 🚨 CAMBIO CRÍTICO: Envío a iFrame para evitar error CORS 🚨 -->
+        <!-- Debe pegar la URL de su Web App aquí, en el atributo 'action' -->
+        <form id="operativoForm" target="hidden_iframe" 
+              action="https://script.google.com/macros/s/AKfycbx7Me3KtwZ2FISzgV2pRa7y1AbZKM7s1pjrQjg3G155Rij23W-yV2nI7rc3NyY1XcA56Q/exec" 
+              method="POST">
+
+            <!-- iFrame oculto para recibir la respuesta de Apps Script -->
+            <iframe id="hidden_iframe" name="hidden_iframe" style="display:none;" onload="handleResponse()"></iframe>
+
             
+            <!-- ### 1. Datos del Operativo y Ubicación ### -->
             <fieldset class="space-y-4 border border-gray-200 p-4 rounded-md mb-6">
                 <legend class="text-lg font-semibold text-gray-800 px-2">Datos del Operativo y Ubicación</legend>
 
@@ -92,6 +101,7 @@
                 </div>
             </fieldset>
 
+            <!-- ### 2. Detalles del Caso ### -->
             <fieldset class="space-y-4 border border-gray-200 p-4 rounded-md mb-6">
                 <legend class="text-lg font-semibold text-gray-800 px-2">Detalles del Caso</legend>
                 
@@ -117,6 +127,7 @@
                 </div>
             </fieldset>
             
+            <!-- ### 3. Datos del Personal Interviniente ### -->
             <fieldset class="space-y-4 border border-gray-200 p-4 rounded-md mb-6">
                 <legend class="text-lg font-semibold text-gray-800 px-2">Datos del Personal Interviniente Principal</legend>
 
@@ -146,9 +157,11 @@
             </fieldset>
 
 
+            <!-- ### 4. Productividad e Indicadores (Todos Fijos) ### -->
             <fieldset class="space-y-4 border border-indigo-500 p-4 rounded-md mb-6 bg-indigo-50">
                 <legend class="text-lg font-semibold text-indigo-700 px-2">Productividad e Indicadores</legend>
                 
+                <!-- Campos de Detenidos (Cantidad) -->
                 <h4 class="text-md font-semibold text-indigo-700 mt-4 border-b pb-1">Detalle de Detenidos</h4>
                 <div class="grid grid-cols-3 gap-4">
                     <div>
@@ -176,10 +189,12 @@
                 </div>
 
 
+                <!-- Sección Fija de Armas -->
                 <div id="armas_details" class="p-3 border border-dashed border-indigo-300 rounded-md bg-white mt-6">
                     <h4 class="text-md font-semibold text-indigo-700 mb-3 border-b pb-1">Desglose de Armas</h4>
                     <div id="fixed-armas-inputs" class="grid grid-cols-4 gap-4">
-                        </div>
+                        <!-- Inputs de armas se generan aquí (AMETRALLADORA, etc.) -->
+                    </div>
                     <div class="mt-4 pt-3 border-t border-indigo-200">
                         <label for="TOTAL ARMAS" class="block text-sm font-bold text-indigo-700">TOTAL ARMAS (TOTAL)</label>
                         <input type="text" id="TOTAL ARMAS" name="TOTAL ARMAS" value="0" readonly 
@@ -187,10 +202,12 @@
                     </div>
                 </div>
 
+                <!-- Sección Fija de Combustibles -->
                 <div id="combustibles_details" class="p-3 border border-dashed border-indigo-300 rounded-md bg-white mt-6">
                     <h4 class="text-md font-semibold text-indigo-700 mb-3 border-b pb-1">Desglose de Combustibles</h4>
                     <div id="fixed-combustible-inputs" class="grid grid-cols-3 gap-4">
-                        </div>
+                        <!-- Inputs de combustibles se generan aquí (DIESEL, etc.) -->
+                    </div>
                     <div class="mt-4 pt-3 border-t border-indigo-200">
                         <label for="TOTAL COMBUSTIBLES (GL)" class="block text-sm font-bold text-indigo-700">TOTAL COMBUSTIBLES (GL) (TOTAL)</label>
                         <input type="text" id="TOTAL COMBUSTIBLES (GL)" name="TOTAL COMBUSTIBLES (GL)" value="0" readonly 
@@ -198,10 +215,12 @@
                     </div>
                 </div>
 
+                <!-- Sección Fija de Drogas -->
                 <div id="drogas_details" class="p-3 border border-dashed border-indigo-300 rounded-md bg-white mt-6">
                     <h4 class="text-md font-semibold text-indigo-700 mb-3 border-b pb-1">Desglose de Drogas</h4>
                     <div id="fixed-drogas-inputs" class="grid grid-cols-3 gap-4">
-                        </div>
+                        <!-- Inputs de drogas se generan aquí (COCAINA, etc.) -->
+                    </div>
                     <div class="mt-4 pt-3 border-t border-indigo-200">
                         <label for="TOTAL DROGA (GR)" class="block text-sm font-bold text-indigo-700">TOTAL DROGA (GR) (TOTAL)</label>
                         <input type="text" id="TOTAL DROGA (GR)" name="TOTAL DROGA (GR)" value="0" readonly 
@@ -209,11 +228,14 @@
                     </div>
                 </div>
 
+                <!-- ### 5. Indicadores Adicionales Fijos (TODOS los demás) ### -->
                 <h4 class="text-md font-semibold text-indigo-700 mt-6 border-b pb-1">Otros Indicadores (Llene solo los que apliquen)</h4>
                 <div id="all-fixed-indicators" class="grid grid-cols-3 gap-4">
-                    </div>
+                    <!-- Aquí se generarán TODOS los demás inputs de la lista exhaustiva. -->
+                </div>
             </fieldset>
 
+            <!-- ### 6. Archivo y Control ### -->
             <fieldset class="space-y-4 border border-gray-200 p-4 rounded-md mb-6">
                 <legend class="text-lg font-semibold text-gray-800 px-2">Archivo y Control</legend>
                 
@@ -223,7 +245,7 @@
                 </div>
 
                 <div id="powerpoint_field_container" class="hidden mt-4">
-                    <label for="archivo_powerpoint" class="block text-sm font-medium text-gray-700">SELECCIONAR ARCHIVO POWERPOINT</label>
+                    <label for="archivo_powerpoint" class="block text-sm font-medium text-gray-700">SELECCIONAR ARCHIVO POWERPOINT (No se envía a Sheets)</label>
                     <input type="file" id="archivo_powerpoint" name="archivo_powerpoint" accept=".ppt,.pptx" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                 </div>
             </fieldset>
@@ -234,6 +256,7 @@
                     Registrar Operativo y Todos los Detalles
                 </button>
             </div>
+            <!-- Contenedor para mensajes de estado (éxito/error) -->
             <div id="form-output" class="mt-4 p-4 bg-green-100 text-green-800 rounded hidden"></div>
         </form>
     </div>
@@ -270,8 +293,7 @@
             "PERICIAS MEDICINA LEGAL", "PERSONAS PROTEGIDAS", "PIROTECNIA (UND)", "PISCINAS ARTESANALES DE CLDH", 
             "POLVORA (KG)", "PRODUCTOS AGRICOLAS (BULTOS)", "QUIMICOS LIQUIDOS (LT)", "QUIMICOS SOLIDOS (KG)", 
             "REGISTRO DE MEDIDAS CAUTELARES", "REPORTES TELEFONICOS ENTREGADOS", "SEMOVIENTES (UND)", 
-            "TACOS DE DINAMITA (UND)", "TOTAL ARMAS", "TOTAL COMBUSTIBLES (GL)", "TOTAL DROGA (GR)", 
-            "TOTAL VEHÍCULOS", "TRASLADO DE INDICIOS BAJO PEDIDO DE AUTORIDAD COMPETENTE", 
+            "TACOS DE DINAMITA (UND)", "TOTAL VEHÍCULOS", "TRASLADO DE INDICIOS BAJO PEDIDO DE AUTORIDAD COMPETENTE", 
             "VALOR DE LOS BIENES INMUEBLES INCAUTADOS", "VICTIMAS LIBERADAS", "VÍCTIMAS RESCATADAS", "VARIOS"
         ];
 
@@ -282,9 +304,8 @@
         const FIXED_INDICATORS = PRODUCTIVITY_INDICATORS.filter(ind => !EXPLICIT_FIELDS.includes(ind));
 
 
-        // --- Funciones de Utilidad (Abreviadas por espacio) ---
+        // --- Funciones de Utilidad ---
 
-        // Función mock para obtener geolocalización
         function getGeolocation() {
             document.getElementById('latitud').value = '';
             document.getElementById('longitud').value = '';
@@ -299,13 +320,11 @@
             }, 500);
         }
         
-        // Función mock para geocodificación inversa
         async function reverseGeocode(lat, lon) {
              // Simulación de respuesta de dirección
              document.getElementById('direccion').value = 'Av. 10 de Agosto y Av. Orellana, Quito';
         }
 
-        // Función mock para buscar detalles de policía
         function searchOfficerDetails(cedula) {
             const status = document.getElementById('cedula_status');
             const data = officerData.find(o => o.CEDULA === cedula);
@@ -335,7 +354,6 @@
             }
         }
         
-        // Función mock para buscar detalles de subcircuito
         function searchSubcircuitoDetails(codigo) {
             const status = document.getElementById('subcircuito_status');
             const data = subcircuitoData.find(s => s.codigo === codigo);
@@ -424,6 +442,48 @@
             container.innerHTML = html;
         }
 
+        // --- Manejo de la Respuesta del Apps Script (iFrame) ---
+
+        function handleResponse() {
+            const output = document.getElementById('form-output');
+            const iframe = document.getElementById('hidden_iframe');
+            
+            // Si el iframe está vacío, no es una respuesta de envío
+            if (iframe.contentWindow.document.body.innerHTML.length === 0) {
+                return; 
+            }
+
+            const responseText = iframe.contentWindow.document.body.textContent.trim();
+            
+            // Ocultar mensaje de envío
+            output.classList.add('hidden');
+            output.classList.remove('bg-yellow-100', 'text-yellow-800', 'bg-red-100', 'text-red-800', 'bg-green-100', 'text-green-800');
+
+
+            if (responseText === "SUCCESS") {
+                output.textContent = '✅ Operativo Policial registrado con éxito en Google Sheets.';
+                output.classList.add('bg-green-100', 'text-green-800');
+                
+                // Resetear el formulario y recalcular totales
+                document.getElementById('operativoForm').reset(); 
+                getGeolocation(); 
+                calculateTotalDetenidos(); 
+                calculateTotalArmas();
+                calculateTotalCombustibles();
+                calculateTotalDrogas();
+
+            } else {
+                output.textContent = `❌ Error al registrar el operativo. Respuesta: ${responseText}`;
+                output.classList.add('bg-red-100', 'text-red-800');
+            }
+            
+            output.classList.remove('hidden');
+            // Ocultar mensaje después de 5 segundos
+            setTimeout(() => {
+                output.classList.add('hidden');
+            }, 5000);
+        }
+
         // --- Inicialización del Formulario ---
         document.addEventListener('DOMContentLoaded', () => {
             // Inicializar fecha/hora y geolocalización
@@ -451,90 +511,6 @@
 
         function togglePowerPointField() {
             document.getElementById('powerpoint_field_container').classList.toggle('hidden');
-        }
-
-
-        // --- Función de Envío del Formulario (SIN FILTROS - Envía ABSOLUTAMENTE TODO) ---
-        function submitForm(event) {
-            event.preventDefault();
-            const form = document.getElementById('operativoForm');
-            const output = document.getElementById('form-output');
-            
-            // 🚨🚨🚨 MODIFIQUE ESTA LÍNEA 🚨🚨🚨
-            const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby1kQ_5Dw7Ct1r4fnlN7Y9V8Fyj5cUSDpHtmrYjs-2ag4NkywVZE9-gaFA6xGax0-OnUQ/exec'; 
-
-            if (WEB_APP_URL.includes('PEGUE SU URL')) {
-                 output.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
-                 output.classList.add('bg-red-100', 'text-red-800');
-                 output.textContent = '❌ ERROR: Por favor, reemplace "https://script.google.com/macros/s/AKfycby1kQ_5Dw7Ct1r4fnlN7Y9V8Fyj5cUSDpHtmrYjs-2ag4NkywVZE9-gaFA6xGax0-OnUQ/exec" con la URL de su Web App.';
-                 return;
-            }
-
-            const formData = new FormData(form);
-            let dataToSend = {};
-
-            // 1. Itera sobre TODOS los campos y los incluye, sin filtro.
-            for (let [key, value] of formData.entries()) {
-                
-                // Excluir el campo de archivo binario.
-                if (key === 'archivo_powerpoint') {
-                    continue; 
-                }
-                
-                // Se incluye ABSOLUTAMENTE todo lo demás (campos vacíos, campos llenos, etc.).
-                dataToSend[key] = value;
-            }
-
-            output.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
-            output.classList.add('bg-yellow-100', 'text-yellow-800');
-            output.textContent = '⏳ Enviando TODOS los datos a Google Sheets...';
-
-
-            // 2. Enviar los datos usando fetch
-            fetch(WEB_APP_URL, {
-                method: 'POST',
-                body: new URLSearchParams(dataToSend),
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.text();
-                } else {
-                    throw new Error(`Error en el servidor: ${response.status} ${response.statusText}`);
-                }
-            })
-            .then(text => {
-                if (text === "SUCCESS") {
-                    console.log("Datos enviados con éxito:", dataToSend);
-                    output.textContent = '✅ Operativo Policial registrado con éxito, enviando TODOS los detalles.';
-                    output.classList.remove('bg-yellow-100', 'text-yellow-800');
-                    output.classList.add('bg-green-100', 'text-green-800');
-                    form.reset(); 
-                    getGeolocation(); 
-                    
-                    // Recalcular totales después del reset para mostrar 0
-                    calculateTotalDetenidos(); 
-                    calculateTotalArmas();
-                    calculateTotalCombustibles();
-                    calculateTotalDrogas();
-                } else {
-                    throw new Error("Respuesta inesperada de Apps Script.");
-                }
-            })
-            .catch(error => {
-                console.error("Error al enviar el formulario:", error);
-                output.textContent = `❌ Error al registrar el operativo: ${error.message}`;
-                output.classList.remove('bg-yellow-100', 'text-yellow-800', 'bg-green-100', 'text-green-800');
-                output.classList.add('bg-red-100', 'text-red-800');
-            })
-            .finally(() => {
-                setTimeout(() => {
-                    output.classList.add('hidden');
-                    output.classList.remove('bg-red-100', 'text-red-800');
-                }, 5000);
-            });
         }
     </script>
 </body>
